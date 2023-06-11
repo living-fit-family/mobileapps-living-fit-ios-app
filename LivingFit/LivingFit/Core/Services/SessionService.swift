@@ -2,8 +2,10 @@
 //  SessionService.swift
 //  LivingFit
 //
-//  Created by Alexander Cleoni on 6/9/23.
+//  Created by Alexander Cleoni on 6/10/23.
 //
+
+import Foundation
 
 import Foundation
 import FirebaseAuth
@@ -31,7 +33,7 @@ final class SessionServiceImpl: ObservableObject, SessionService {
     }
     
     func signOut() {
-            
+        try? Auth.auth().signOut()
     }
 }
 

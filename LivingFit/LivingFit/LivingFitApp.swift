@@ -36,7 +36,7 @@ struct LivingFitApp: App {
                 case .loggedOut:
                     SignInView()
                 }
-            }
+            }.environmentObject(sessionService)
         }
     }
 }

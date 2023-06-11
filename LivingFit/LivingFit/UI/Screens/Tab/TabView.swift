@@ -24,6 +24,8 @@ enum Tab: String {
 }
 
 struct TabView: View {
+    @EnvironmentObject var sessionService: SessionServiceImpl
+    
     @State var selected: Tab = .home
     @State var showMenu = false
     
@@ -71,12 +73,26 @@ struct TabView: View {
             .edgesIgnoringSafeArea(.bottom)
         }
         .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem {
+                Button(action: {
+                    sessionService.signOut()
+                }, label: {
+                    Text("Sign Out")
+                        .foregroundColor(.red)
+                })
+
+            }
+        }
     }
 }
 
 struct TabView_Previews: PreviewProvider {
     static var previews: some View {
-        TabView()
+        NavigationStack {
+            TabView()
+                .environmentObject(SessionServiceImpl())
+        }
     }
 }
 

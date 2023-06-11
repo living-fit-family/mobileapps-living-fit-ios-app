@@ -19,6 +19,7 @@ struct LFTextFieldStyle: TextFieldStyle {
             .overlay(RoundedRectangle(cornerRadius: 5, style: .continuous)
                 .stroke(Color(hex: "696969", alpha: 0.25)))
             .disableAutocorrection(true)
+            .textInputAutocapitalization(.never)
             .focused($isFocused)
             .onTapGesture {
                 isFocused = true;

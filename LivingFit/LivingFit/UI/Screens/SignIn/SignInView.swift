@@ -16,12 +16,12 @@ enum AuthState {
 }
 
 class ViewModel: ObservableObject {
-    private var service: SignInServiceProtocol
+    private var service: AuthServiceProtocol
     @Published var state: AuthState = .na
     
     private var subscriptions = Set<AnyCancellable>()
     
-    init(service: SignInServiceProtocol) {
+    init(service: AuthServiceProtocol) {
         self.service = service
     }
     
@@ -43,7 +43,7 @@ struct SignInView: View {
     @State var email: String = ""
     @State var password: String = ""
     @State var showPassword: Bool = false
-    @StateObject private var vm = ViewModel(service: SignInServiceImpl(userRepository: UserRepositoryAdapter()))
+    @StateObject private var vm = ViewModel(service: AuthServiceImpl(authRepository: FirebaseAuthRepositoryAdapter()))
     
     var body: some View {
         VStack(spacing: 16) {

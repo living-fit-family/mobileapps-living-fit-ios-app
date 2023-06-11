@@ -1,5 +1,5 @@
 //
-//  UserRepositoryAdapter.swift
+//  FirebaseAuthRepositoryAdapter.swift
 //  LivingFit
 //
 //  Created by Alexander Cleoni on 6/10/23.
@@ -12,7 +12,7 @@ import Combine
 import Foundation
 import FirebaseAuth
 
-final class UserRepositoryAdapter: UserRepository {
+final class FirebaseAuthRepositoryAdapter: AuthRepository {
     func signIn(email: String, password: String) -> AnyPublisher<Void, Error> {
         Deferred {
             Future { promise in
@@ -29,5 +29,9 @@ final class UserRepositoryAdapter: UserRepository {
         }
         .receive(on: RunLoop.main)
         .eraseToAnyPublisher()
+    }
+    
+    func signOut() {
+        try? Auth.auth().signOut()
     }
 }
