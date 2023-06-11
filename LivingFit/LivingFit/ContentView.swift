@@ -23,21 +23,23 @@ class LoopingPlayerUIView: UIView {
     private var playerLooper: AVPlayerLooper?
     
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        fatalError("init(coder:) has not been implemented.")
     }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        
         // Load the resource -> h
-        let fileUrl = URL(string: "https://res.cloudinary.com/living-fit-family/video/upload/v1616267879/samples/sea-turtle.mp4")!
-        let asset = AVAsset(url: fileUrl)
+        let url = URL(string: "https://ik.imagekit.io/z9gymi5p9/main.mp4?updatedAt=1680125548332")!
+        //        let fileUrl = Bundle.main.url(forResource: "onboarding", withExtension: "mov")!
+        let asset = AVAsset(url: url)
         let item = AVPlayerItem(asset: asset)
         // Setup the player
         let player = AVQueuePlayer()
-        playerLayer.player = player
+        playerLayer.player = player;
         playerLayer.videoGravity = .resizeAspectFill
         layer.addSublayer(playerLayer)
-        // Create a new player looper with the queue player and template item
+        // Create a new player looper with the queue player and template items
         playerLooper = AVPlayerLooper(player: player, templateItem: item)
         // Start the movie
         player.play()
@@ -51,14 +53,41 @@ class LoopingPlayerUIView: UIView {
 
 struct ContentView: View {
     var body: some View {
-        GeometryReader{ geo in
-            PlayerView()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: geo.size.width, height: geo.size.height+100)
-                .edgesIgnoringSafeArea(.all)
-                .overlay(Color.black.opacity(0.2))
-                .blur(radius: 1)
-                .edgesIgnoringSafeArea(.all)
+        NavigationView {
+            GeometryReader{ geo in
+                ZStack {
+                    PlayerView()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: geo.size.width, height: geo.size.height)
+                        .overlay(Color.black.opacity(0.2))
+                        .edgesIgnoringSafeArea(.all)
+                    Rectangle()
+                        .fill(LinearGradient(gradient: Gradient(colors: [.black.opacity(0.0), .black.opacity(1.0)]), startPoint: .top, endPoint: .bottom))
+                        .frame(width: geo.size.width, height: geo.size.height)
+                    VStack {
+                        Spacer()
+                        Image("Full Logo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 180, height: 180)
+                        Text("Atlanta’s #1 In-Person Training Available Worldwide")
+                            .font(.title)
+                            .fontWeight(.medium)
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.center)
+                            .padding(.bottom)
+                        Spacer()
+                        NavigationLink(destination: SignInView()) {
+                            HStack {
+                                Text("Get Started")
+                                Image(systemName: "chevron.right")
+                            }
+                            .font(.title3)
+                            .foregroundColor(.green)
+                        }.padding(.bottom)
+                    }
+                }
+            }.background(.black)
         }
     }
 }

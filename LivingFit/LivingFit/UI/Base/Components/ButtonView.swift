@@ -29,7 +29,7 @@ struct ButtonView: View {
     var body: some View {
         Button(action: handler, label: {
             Text(title)
-                .frame(maxWidth: .infinity, maxHeight: 54)
+                .frame(maxWidth: .infinity, maxHeight: 48)
                 .background(background)
                 .foregroundColor(foreground)
                 .font(.title3)

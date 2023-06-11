@@ -35,7 +35,7 @@ struct TabView: View {
                 Spacer()
                 switch selected {
                 case .home:
-                    Text(Tab.home.rawValue)
+                    HomeView()
                 case .search:
                     Text(Tab.search.rawValue)
                 case .message:

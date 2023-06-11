@@ -34,7 +34,7 @@ struct LivingFitApp: App {
                 case .loggedIn:
                     TabView()
                 case .loggedOut:
-                    SignInView()
+                    ContentView()
                 }
             }.environmentObject(sessionService)
         }

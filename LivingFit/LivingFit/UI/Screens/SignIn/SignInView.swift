@@ -6,81 +6,70 @@
 //
 
 import SwiftUI
-import Combine
-import Foundation
-
-enum AuthState {
-    case failure(err: Error)
-    case success
-    case na
-}
-
-class ViewModel: ObservableObject {
-    private var service: AuthServiceProtocol
-    @Published var state: AuthState = .na
-    
-    private var subscriptions = Set<AnyCancellable>()
-    
-    init(service: AuthServiceProtocol) {
-        self.service = service
-    }
-    
-    func signIn(email: String, password: String) {
-        service.signIn(email: email, password: password)
-            .sink { res in
-            switch res {
-            case .failure(let err):
-                self.state = .failure(err: err)
-            default: break
-            }
-        } receiveValue: { [weak self] in
-            self?.state = .success
-        }.store(in: &subscriptions)
-    }
-}
 
 struct SignInView: View {
     @State var email: String = ""
     @State var password: String = ""
     @State var showPassword: Bool = false
-    @StateObject private var vm = ViewModel(service: AuthServiceImpl(authRepository: FirebaseAuthRepositoryAdapter()))
+    @StateObject private var vm = SignInViewModel(service: AuthServiceImpl(authRepository: FirebaseAuthRepositoryAdapter()))
     
     var body: some View {
         VStack(spacing: 16) {
+            Spacer()
+            HStack {
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("Hi, Welcome Back! 👋")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .foregroundColor(.green)
+                    Text("Please log in to your account")
+                        .font(.body)
+                        .foregroundColor(Color(hex: "3A4750"))
+                }
+                Spacer()
+            }
             Spacer()
             VStack(spacing: 16) {
                 VStack(alignment: .leading) {
                     Text("Email")
                         .fontWeight(.medium)
                         .foregroundColor(Color(hex: "3A4750"))
-                    TextFieldView(input: $email, placeholder: "johnsmith@gmail.com", keyboardType: .emailAddress, isSecure: false)
+                    TextFieldView(input: $email, placeholder: "example@mail.com", keyboardType: .emailAddress, isSecure: false)
                 }
                 VStack(alignment: .leading) {
                     Text("Password")
                         .fontWeight(.medium)
                         .foregroundColor(Color(hex: "3A4750"))
-                    if !showPassword {
-                        TextFieldView(input: $password, placeholder: "qYRNmq0f", keyboardType: .default, isSecure: true)
-                    } else {
-                        TextFieldView(input: $password, placeholder: "qYRNmq0f", keyboardType: .default, isSecure: false)
+                    HStack {
+                        if !showPassword {
+                            TextFieldView(input: $password, placeholder: "Password", keyboardType: .asciiCapable, isSecure: true)
+                        } else {
+                            TextFieldView(input: $password, placeholder: "Password", keyboardType: .asciiCapable, isSecure: false)
+                        }
+                    }.overlay(alignment: .trailing) {
+                        Image(showPassword ? "show" : "hide")
+                            .resizable()
+                            .frame(width: 24, height: 26)
+                            .opacity(0.60)
+                            .onTapGesture {
+                                showPassword.toggle()
+                            }.padding(.horizontal)
                     }
                 }
                 HStack {
                     Spacer()
-                    Button(action: {
-                        
-                    }, label: {
+                    NavigationLink(destination: ForgotPasswordView()) {
                         Text("Forgot Password?")
                             .font(.body)
                             .fontWeight(.semibold)
                             .foregroundColor(.black)
-                    })
+                    }
                 }
                 VStack {
                     ButtonView(title: "Sign In") {
                         print("here")
                         vm.signIn(email: email, password: password)
-                    }
+                    }.padding(.vertical)
                 }
                 Spacer()
                 HStack {
@@ -96,8 +85,7 @@ struct SignInView: View {
             }
         }
         .padding()
-        .navigationTitle("Sign in to your account")
-        .navigationBarTitleDisplayMode(.inline)
+        .ignoresSafeArea(.keyboard)
     }
 }
 

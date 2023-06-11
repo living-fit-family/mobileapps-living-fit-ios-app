@@ -8,11 +8,11 @@
 import Combine
 import Foundation
 
-protocol AuthServiceProtocol {
+protocol AuthService {
     func signIn(email: String, password: String) -> AnyPublisher<Void, Error>
 }
 
-final class AuthServiceImpl: AuthServiceProtocol {
+final class AuthServiceImpl: AuthService {
     private var authRepository: AuthRepository
     
     internal init(authRepository: AuthRepository) {

@@ -12,12 +12,12 @@ struct LFTextFieldStyle: TextFieldStyle {
     
     func _body(configuration: TextField<Self._Label>) -> some View {
         configuration
-            .frame(maxWidth: .infinity, maxHeight: 54)
+            .frame(maxWidth: .infinity, maxHeight: 48)
             .padding(.leading, 16)
             .background(Color(hex: "F5F5F5"))
             .cornerRadius(5)
             .overlay(RoundedRectangle(cornerRadius: 5, style: .continuous)
-                .stroke(Color(hex: "696969", alpha: 0.25)))
+                .stroke(Color(hex: "E1E1E1")))
             .disableAutocorrection(true)
             .textInputAutocapitalization(.never)
             .focused($isFocused)
