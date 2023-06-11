@@ -47,8 +47,8 @@ struct SignInView: View {
     
     var body: some View {
         VStack(spacing: 16) {
+            Spacer()
             VStack(spacing: 16) {
-                Spacer()
                 VStack(alignment: .leading) {
                     Text("Email")
                         .fontWeight(.medium)
