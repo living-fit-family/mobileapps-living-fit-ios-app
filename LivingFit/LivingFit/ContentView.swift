@@ -52,8 +52,10 @@ class LoopingPlayerUIView: UIView {
 }
 
 struct ContentView: View {
+    @State private var isPresented = false
+
     var body: some View {
-        NavigationView {
+//        NavigationView {
             GeometryReader{ geo in
                 ZStack {
                     PlayerView()
@@ -77,23 +79,26 @@ struct ContentView: View {
                             .multilineTextAlignment(.center)
                             .padding(.bottom)
                         Spacer()
-                        NavigationLink(destination: SignInView()) {
-                            HStack {
-                                Text("Get Started")
-                                Image(systemName: "chevron.right")
-                            }
-                            .font(.title3)
-                            .foregroundColor(.green)
-                        }.padding(.bottom)
+                        Button(action: {isPresented.toggle()}) {
+                            Text("Get Started")
+                            Image(systemName: "chevron.right")
+                        }
+                        .font(.title3)
+                        .foregroundColor(.green)
+                        .fullScreenCover(isPresented: $isPresented, content: {
+                            SignInView()
+                        })
                     }
                 }
             }.background(.black)
-        }
+//        }
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+//        NavigationStack {
+            ContentView()
+//        }
     }
 }

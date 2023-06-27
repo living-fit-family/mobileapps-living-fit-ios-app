@@ -10,6 +10,7 @@ import Foundation
 
 protocol AuthService {
     func signIn(email: String, password: String) -> AnyPublisher<Void, Error>
+    func sendPasswordReset(withEmail email: String) -> AnyPublisher<Void, Error>
 }
 
 final class AuthServiceImpl: AuthService {
@@ -21,6 +22,10 @@ final class AuthServiceImpl: AuthService {
     
     func signIn(email: String, password: String) -> AnyPublisher<Void, Error> {
         authRepository.signIn(email: email, password: password)
+    }
+    
+    func sendPasswordReset(withEmail email: String) -> AnyPublisher<Void, Error> {
+        authRepository.sendPasswordReset(withEmail: email)
     }
     
     func signOut() {

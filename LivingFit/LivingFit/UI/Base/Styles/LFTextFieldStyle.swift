@@ -14,11 +14,11 @@ struct LFTextFieldStyle: TextFieldStyle {
         configuration
             .frame(maxWidth: .infinity, maxHeight: 48)
             .padding(.leading, 16)
-            .background(Color(hex: "F5F5F5"))
+//            .background(Color(hex: "F5F5F5"))
             .cornerRadius(5)
             .overlay(RoundedRectangle(cornerRadius: 5, style: .continuous)
-                .stroke(Color(hex: "E1E1E1")))
-            .disableAutocorrection(true)
+                .stroke(Color(red: 0.77, green: 0.77, blue: 0.77), lineWidth: 1))
+            .autocorrectionDisabled(true)
             .textInputAutocapitalization(.never)
             .focused($isFocused)
             .onTapGesture {

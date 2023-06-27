@@ -10,5 +10,6 @@ import Foundation
 
 protocol AuthRepository {
     func signIn(email: String, password: String  ) -> AnyPublisher<Void, Error>
+    func sendPasswordReset(withEmail email: String) -> AnyPublisher<Void, Error> 
     func signOut()
 }

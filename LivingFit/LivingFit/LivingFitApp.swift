@@ -32,7 +32,7 @@ struct LivingFitApp: App {
             NavigationView {
                 switch sessionService.state {
                 case .loggedIn:
-                    TabView()
+                    MainView()
                 case .loggedOut:
                     ContentView()
                 }
