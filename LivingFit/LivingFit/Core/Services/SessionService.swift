@@ -6,10 +6,13 @@
 //
 
 import Foundation
-
-import Foundation
 import FirebaseAuth
 import FirebaseFirestore
+
+struct UserSessionDetails {
+    let firstName: String
+    let lastName: String
+}
 
 enum SessionState {
     case loggedIn

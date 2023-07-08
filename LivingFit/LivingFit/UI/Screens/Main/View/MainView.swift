@@ -7,49 +7,86 @@
 
 import SwiftUI
 
+enum Tabs: String {
+    case home
+    case nutrition
+    case chat
+    case account
+}
+
 struct MainView: View {
     @EnvironmentObject var sessionService: SessionServiceImpl
-
+    @State private var selectedTab = Tabs.home
     var body: some View {
-        TabView {
-            MyPlanView()
-                .tabItem {
-                    Label("My Plan", systemImage: "calendar")
+        VStack(alignment: .leading) {
+            HStack {
+                if selectedTab == Tabs.home {
+                    VStack(alignment: .leading) {
+                        Text("Hello, Taylor 👋")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .foregroundColor(Color(hex: "#313131"))
+                        Text("Today is July 2, 2023")
+                            .font(.title3)
+                            .foregroundColor(.gray)
+                            .fontWeight(.light)
+                    }
                 }
-            Text("Nutrition")
-                .tabItem {
-                    Label("Nutrition", systemImage: "chart.pie")
+                if selectedTab == Tabs.nutrition {
+                    Text("Nutrition")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .foregroundColor(Color(hex: "#313131"))
                 }
-            Text("Chat")
-                .badge(5)
-                .tabItem {
-                    Label("Chat", systemImage: "message")
-                }
-            Text("Account")
-                .badge("!")
-                .tabItem {
-                    Label("Account", systemImage: "person.crop.circle.fill")
-                }
-        }
-        .accentColor(Color(hex: "5655C8"))
-        .navigationBarBackButtonHidden(true)
-        .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-                Image("profile")
-                    .resizable()
-                    .frame(width: 32, height: 32)
-                    .clipShape(Circle())
+            }
+            .padding([.horizontal, .top])
+            TabView(selection: $selectedTab) {
+                MyPlanView()
+                    .tabItem {
+                        Label("My Plan", systemImage: "calendar")
+                    }
+                    .tag(Tabs.home)
+                NutritionView()
+                    .tabItem {
+                        Label("Nutrition", systemImage: "chart.pie")
+                    }
+                    .tag(Tabs.nutrition)
+                Text("Chat")
+                    .badge(5)
+                    .tabItem {
+                        Label("Chat", systemImage: "message")
+                    }
+                    .tag(Tabs.chat)
+                Text("Account")
+                    .badge("!")
+                    .tabItem {
+                        Label("Account", systemImage: "person.crop.circle.fill")
+                    }
+                    .tag(Tabs.account)
+            }
+            .tint(Color(hex: "#313131"))
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(action: sessionService.signOut) {
+                        Image(systemName: "bell")
+                            .renderingMode(.template)
+                            .resizable()
+                            .frame(width: 20, height: 20)
+                            .fontWeight(.light)
+                            .foregroundColor(Color(hex: "#313131"))
+                    }
                     
-            }
-            ToolbarItem(placement: .confirmationAction) {
-                Button(action: sessionService.signOut) {
-                    Image(systemName: "bell")
-                        .resizable()
-                        .frame(width: 20, height: 20)
                 }
-                
+                ToolbarItem(placement: .confirmationAction) {
+                    Image("profile")
+                        .resizable()
+                        .frame(width: 28, height: 28)
+                        .clipShape(Circle())
+                }
             }
         }
+        
     }
 }
 
@@ -59,5 +96,12 @@ struct MainView_Previews: PreviewProvider {
             MainView()
                 .environmentObject(SessionServiceImpl())
         }
+        .previewDevice(PreviewDevice(rawValue: "iPhone SE (3rd generation)"))
+        
+        NavigationStack {
+            MainView()
+                .environmentObject(SessionServiceImpl())
+        }
+        .previewDevice(PreviewDevice(rawValue: "iPhone 14 Pro"))
     }
 }

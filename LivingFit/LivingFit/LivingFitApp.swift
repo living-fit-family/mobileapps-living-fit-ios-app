@@ -8,11 +8,20 @@
 import SwiftUI
 import FirebaseCore
 import FirebaseAuth
+import AVFAudio
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         // Use Firebase library to configure APIs
         FirebaseApp.configure()
+        do {
+            try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.ambient, options: .mixWithOthers)
+            print("Playback OK")
+            try AVAudioSession.sharedInstance().setActive(true)
+            print("Session is Active")
+        } catch {
+            print(error)
+        }
         return true;
     }
     
@@ -29,14 +38,15 @@ struct LivingFitApp: App {
     
     var body: some Scene {
         WindowGroup {
-            NavigationView {
+            NavigationStack {
                 switch sessionService.state {
                 case .loggedIn:
                     MainView()
                 case .loggedOut:
                     ContentView()
                 }
-            }.environmentObject(sessionService)
+            }
+            .environmentObject(sessionService)
         }
     }
 }

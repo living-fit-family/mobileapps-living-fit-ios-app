@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ProgressView: View {
+struct LFProgressView: View {
     var body: some View {
         VStack(spacing: 1) {
             ForEach(1..<6) { num in
@@ -25,7 +25,7 @@ struct ProgressView: View {
                     }
                 if (num < 5) {
                     Divider()
-                        .frame(width: 2, height: 70)
+                        .frame(width: 2, height: 83)
                         .background(.green)
                 }
             }
@@ -33,7 +33,7 @@ struct ProgressView: View {
     }
 }
 
-struct ProgressView_Previews: PreviewProvider {
+struct LFProgressView_Previews: PreviewProvider {
     static var previews: some View {
         ProgressView()
     }

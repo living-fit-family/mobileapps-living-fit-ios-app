@@ -75,6 +75,7 @@ struct SignInView: View {
                     }
                     .padding(.top)
                 }
+                
                 Spacer()
             }
             .toolbar {
@@ -97,16 +98,23 @@ struct SignInView: View {
             }
             .navigationBarTitleDisplayMode(.large)
             .navigationBarBackButtonHidden(true)
-            .navigationViewStyle(StackNavigationViewStyle())
+//            .navigationViewStyle(StackNavigationViewStyle())
             .padding()
         }
+
     }
 }
 
 struct SignInView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationStack {
+//        NavigationStack {
+//            SignInView()
+//                .previewDevice(PreviewDevice(rawValue: "iPhone 14"))
+//        }
+        
+//        NavigationStack {
             SignInView()
-        }
+                .previewDevice(PreviewDevice(rawValue: "iPhone SE (3rd generation)"))
+//        }
     }
 }

@@ -6,12 +6,8 @@
 //
 
 import Foundation
-
-
 import Combine
-import Foundation
 import FirebaseAuth
-import FirebaseFirestore
 
 final class FirebaseAuthRepositoryAdapter: AuthRepository {
     func signIn(email: String, password: String) -> AnyPublisher<Void, Error> {

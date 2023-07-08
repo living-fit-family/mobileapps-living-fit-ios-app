@@ -9,7 +9,8 @@ import SwiftUI
 
 struct ResetPasswordView: View {
     @Environment(\.presentationMode) var presentationMode
-    @State var email: String = ""
+    @State private var email: String = ""
+    @State private var didSend = false
     @StateObject private var vm = ResetPasswordViewModelImpl(service: AuthServiceImpl(authRepository: FirebaseAuthRepositoryAdapter()))
     
     var body: some View {
@@ -31,8 +32,16 @@ struct ResetPasswordView: View {
                 }
 
                 VStack {
-                    ButtonView(title: "Send Code") {
+                    ButtonView(title: "Send Reset Link") {
                         vm.sendPasswordReset()
+                        didSend.toggle()
+                    }
+                    .alert("Success", isPresented: $didSend) {
+                        NavigationLink(destination: SignInView()) {
+                            Text("Continue")
+                        }
+                    } message: {
+                        Text("Password reset link sent to \(vm.email)  ")
                     }
                 }.padding(.vertical)
                 Spacer()
