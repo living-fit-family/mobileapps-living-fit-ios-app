@@ -25,16 +25,16 @@ struct LFProgressView: View {
                     }
                 if (num < 5) {
                     Divider()
-                        .frame(width: 2, height: 83)
+                        .frame(width: 2, height: 85)
                         .background(.green)
                 }
             }
-        }
+        }.padding(0)
     }
 }
 
 struct LFProgressView_Previews: PreviewProvider {
     static var previews: some View {
-        ProgressView()
+        LFProgressView()
     }
 }

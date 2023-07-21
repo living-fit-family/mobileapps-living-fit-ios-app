@@ -98,7 +98,6 @@ struct SignInView: View {
             }
             .navigationBarTitleDisplayMode(.large)
             .navigationBarBackButtonHidden(true)
-//            .navigationViewStyle(StackNavigationViewStyle())
             .padding()
         }
 
@@ -107,14 +106,11 @@ struct SignInView: View {
 
 struct SignInView_Previews: PreviewProvider {
     static var previews: some View {
-//        NavigationStack {
-//            SignInView()
-//                .previewDevice(PreviewDevice(rawValue: "iPhone 14"))
-//        }
-        
-//        NavigationStack {
+        Group {
+            SignInView()
+                .previewDevice(PreviewDevice(rawValue: "iPhone 14"))
             SignInView()
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE (3rd generation)"))
-//        }
+        }
     }
 }

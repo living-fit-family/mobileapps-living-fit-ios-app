@@ -10,6 +10,7 @@ import FirebaseAuth
 import FirebaseFirestore
 
 struct UserSessionDetails {
+    let id: String
     let firstName: String
     let lastName: String
 }
@@ -69,9 +70,8 @@ private extension SessionServiceImpl {
                       let lastName = data["lastName"] as? String else {
                     return
                 }
-                print("Current data: \(data)")
                 DispatchQueue.main.async {
-                    self.user = UserSessionDetails(firstName: firstName, lastName: lastName)
+                    self.user = UserSessionDetails(id: document.documentID, firstName: firstName, lastName: lastName)
                 }
             }
     }

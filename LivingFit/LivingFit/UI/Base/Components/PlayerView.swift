@@ -6,16 +6,15 @@
 //
 
 import SwiftUI
-
-import SwiftUI
 import AVFoundation
 
-struct VideoPlayer: UIViewRepresentable {
+struct PlayerView: UIViewRepresentable, Identifiable {
+    public var id: String?
     private var url: String = ""
     init(url: String) {
         self.url = url
     }
-    func updateUIView(_ uiView: UIView, context: UIViewRepresentableContext<VideoPlayer>) {
+    func updateUIView(_ uiView: UIView, context: UIViewRepresentableContext<PlayerView>) {
     }
     
     func makeUIView(context: Context) -> UIView {
@@ -48,7 +47,7 @@ class LoopingPlayerUIView: UIView {
         //Mute the audio
         player.isMuted = true
         // Start the video
-        player.play()
+        player.playImmediately(atRate: 1.0)
     }
     
     override func layoutSubviews() {
@@ -56,4 +55,3 @@ class LoopingPlayerUIView: UIView {
         playerLayer.frame = bounds
     }
 }
-

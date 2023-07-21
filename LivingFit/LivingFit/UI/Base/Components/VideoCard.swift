@@ -6,26 +6,34 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct VideoCard: View {
     var video: Video
+    var isAdded: Bool
     
     var body: some View {
         ZStack {
             ZStack(alignment: .bottomLeading) {
-                AsyncImage(url: URL(string: video.imageLink)) { image in
-                    image.resizable()
-                        .aspectRatio(CGSize(width: 9, height: 16 ), contentMode: .fill)
-                        .frame(width: 165, height: 225)
-                        .cornerRadius(20)
-                } placeholder: {
-                    Rectangle()
-                        .foregroundColor(.gray.opacity(0.3))
-                        .frame(width: 165, height: 225)
-                        .cornerRadius(20)
-                }
+                KFImage.url(URL(string: video.imageLink))
+//                          .placeholder(Rectangle()
+//                            .foregroundColor(.gray.opacity(0.3))
+//                            .frame(width: 50, height: 50))
+//                          .setProcessor(processor)
+                          .loadDiskFileSynchronously()
+                          .cacheMemoryOnly()
+                          .fade(duration: 0.25)
+//                          .lowDataModeSource(.network(lowResolutionURL))
+                          .onProgress { receivedSize, totalSize in  }
+                          .onSuccess { result in  }
+                          .onFailure { error in }
+                          .resizable()
+                          .aspectRatio(CGSize(width: 9, height: 16 ), contentMode: .fill)
+                          .frame(width: 165, height: 225)
+                          .cornerRadius(20)
                 VStack(alignment: .leading) {
-                    Text(video.name)
+                    Text(video.name.replacingOccurrences(of: "\\n", with: "\n"))
+                        .lineLimit(2)
                         .font(.caption).bold()
                     Text(video.setDuration)
                         .font(.caption).bold()
@@ -33,19 +41,27 @@ struct VideoCard: View {
                 .foregroundColor(.white)
                 .shadow(radius: 20)
                 .padding()
-            }
+            }.padding(3)
             Image(systemName: "play.fill")
                 .foregroundColor(.white)
                 .font(.title)
                 .padding()
                 .background(.ultraThinMaterial)
                 .cornerRadius(50)
+        }.overlay {
+            if isAdded {
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(.green, lineWidth: 3)
+            } else {
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(.clear, lineWidth: 1)
+            }
         }
     }
 }
 
 struct VideoCard_Previews: PreviewProvider {
     static var previews: some View {
-        VideoCard(video: Video.sampleVideo)
+        VideoCard(video: Video.sampleVideo, isAdded: false)
     }
 }

@@ -13,7 +13,7 @@ struct ContentView: View {
     var body: some View {
         GeometryReader{ geo in
             ZStack {
-                VideoPlayer(url: "https://ik.imagekit.io/z9gymi5p9/main.mp4?updatedAt=1680125548332")
+                PlayerView(url: "https://ik.imagekit.io/z9gymi5p9/main.mp4?updatedAt=1680125548332")
                     .aspectRatio(contentMode: .fill)
                     .frame(width: geo.size.width, height: geo.size.height)
                     .overlay(Color.black.opacity(0.2))

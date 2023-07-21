@@ -8,23 +8,17 @@
 import Foundation
 import FirebaseFirestore
 import FirebaseFirestoreSwift
+import SwiftUI
 
 struct Video: Codable, Identifiable {
     @DocumentID var id: String?
     var name: String
     var category: String
+    var subCategory: String?
     var setDuration: String
     var imageLink: String
+    var squareImageLink: String?
     var videoLink: String
-    
-    enum CodingKeys: String, CodingKey {
-        case id
-        case name
-        case category
-        case setDuration = "set_duration"
-        case imageLink = "image_link"
-        case videoLink = "video_link"
-    }
 }
 
 extension Video {
@@ -33,7 +27,7 @@ extension Video {
         name: "Glute Bridge",
         category: "Glutes",
         setDuration: "4x10",
-        imageLink: "https://livingfitfamily.imgix.net/barbell_glute_bridge.jpg",
-        videoLink: "https://livingfitfamily.imgix.net/barbell_glute_bridge.mp4"
+        imageLink: "https://ik.imagekit.io/z9gymi5p9/dumbell_flat_bench_press.jpg?updatedAt=1689485634307",
+        videoLink: "https://livingfitfamily.imgix.net/legs/leg_extension.mp4"
     )
 }

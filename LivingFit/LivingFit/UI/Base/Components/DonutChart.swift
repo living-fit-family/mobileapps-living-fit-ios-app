@@ -40,48 +40,7 @@ struct DonutChart: View {
                 }
             }
             .frame(width: 180, height: 230)
-//            HStack {
-//                RoundedRectangle(cornerRadius: 16)
-//                    .fill(.white)
-//                    .frame(width: 95, height: 65)
-//                    .shadow(color: Color(hex: "1D1617", alpha: 0.07), radius: 40, x: 0, y: 10)
-//                    .overlay {
-//                        VStack {
-//                            Text("5ft 5in")
-//                                .font(.headline)
-//                            Text("Height")
-//                                .font(.subheadline)
-//                                .foregroundColor(Color(hex: "7B6F72"))
-//                        }
-//                    }
-//                RoundedRectangle(cornerRadius: 16)
-//                    .fill(.white)
-//                    .frame(width: 95, height: 65)
-//                    .shadow(color: Color(hex: "1D1617", alpha: 0.07), radius: 40, x: 0, y: 10)
-//                    .overlay {
-//                        VStack {
-//                            Text("150 lbs")
-//                                .font(.headline)
-//                            Text("Weight")
-//                                .font(.subheadline)
-//                                .foregroundColor(Color(hex: "7B6F72"))
-//                        }
-//                    }
-//                RoundedRectangle(cornerRadius: 16)
-//                    .fill(.white)
-//                    .frame(width: 95, height: 65)
-//                    .shadow(color: Color(hex: "1D1617", alpha: 0.07), radius: 40, x: 0, y: 10)
-//                    .overlay {
-//                        VStack {
-//                            Text("31yo")
-//                                .font(.headline)
-//                            Text("Age")
-//                                .font(.subheadline)
-//                                .foregroundColor(Color(hex: "7B6F72"))
-//                        }
-//                    }
-//            }
-//            .padding(.bottom, 20)
+            
             VStack(alignment: .leading) {
                 ForEach(chartModelData) { datum in
                     HStack {
