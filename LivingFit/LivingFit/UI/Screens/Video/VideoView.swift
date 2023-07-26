@@ -28,17 +28,38 @@ struct VideoView: View {
             PlayerView(url: video.videoLink)
                 .aspectRatio(CGSize(width: 4, height: 5 ), contentMode: .fit)
             HStack {
-                VStack(alignment: .leading) {
+                VStack(alignment: .leading, spacing: 12) {
                     Text(video.name.replacingOccurrences(of: "\\n", with: "\n"))
-                        .font(.largeTitle)
-                        .bold()
-                    Text(video.setDuration)
                         .font(.title)
-                        .fontWeight(.medium)
-                        .foregroundColor(Color(red: 0.66, green: 0.66, blue: 0.66))
+                        .fontWeight(.semibold)
+                    VStack(alignment: .leading, spacing: 16) {
+                        if video.category == Query.cardio.rawValue {
+                            Text("Duration: \(video.duration ?? "N/A")")
+//                                .fontWeight(.semibold)
+                                .foregroundColor(Color(hex: "3A4750"))
+
+                            Text("Rest: \(video.rest ?? "N/A")")
+//                                .font(.headline)
+//                                .fontWeight(.semibold)
+                                .foregroundColor(Color(hex: "3A4750"))
+                        } else {
+                            Text("Sets: \(video.sets ?? "N/A")")
+//                                .fontWeight(.regular)
+                                .foregroundColor(Color(hex: "3A4750"))
+                            Text("Reps: \(video.reps ?? "N/A")")
+//                                .font(.headline)
+//                                .fontWeight(.semibold)
+                                .foregroundColor(Color(hex: "3A4750"))
+                            Text("Rest: \(video.rest ?? "N/A")")
+//                                .font(.headline)
+//                                .fontWeight(.semibold)
+                                .foregroundColor(Color(hex: "3A4750"))
+                        }
+                    }
                 }
                 Spacer()
-            }.padding(.horizontal)
+            }
+            .padding(.horizontal)
             Spacer()
             if (showButton) {
                 if (isAdded()) {

@@ -37,9 +37,9 @@ struct SignInView: View {
                             }
                         }
                         .overlay(alignment: .trailing) {
-                            Image(showPassword ? "show" : "hide")
+                            Image(systemName: showPassword ? "eye" : "eye.slash")
                                 .resizable()
-                                .frame(width: 24, height: 26)
+                                .frame(width: 18, height: 15)
                                 .opacity(0.60)
                                 .onTapGesture {
                                     showPassword.toggle()

@@ -83,7 +83,10 @@ struct WorkoutEditView: View {
         
         var count: [Exercise] = []
         split?.exercises.forEach { split in
-            count.append(Exercise(category: split.category, count: addedExercises.filter {$0.category == split.category}.count, required: split.number))
+            count.append(
+                Exercise(category: split.category,
+                         count: addedExercises.filter{ $0.category.components(separatedBy: ",").first(where: { $0 == split.category}) != nil }.count,
+                         required: split.number))
         }
         
         count.forEach {
@@ -95,7 +98,6 @@ struct WorkoutEditView: View {
         }
         
         if showError != true {
-            print(addedExercises)
             if let userId = sessionService.user?.id, let day = split?.day {
                 Task {
                     await splitSesstionService.addUserWorkout(
@@ -108,9 +110,8 @@ struct WorkoutEditView: View {
     }
     
     func filter() -> [Video] {
-        var videos = service.videos.filter{ video in
-            let categories = video.category.components(separatedBy: ",")
-            return (categories.first(where: {$0 == self.selectedQuery}) != nil)
+        var videos = service.videos.filter{
+            return $0.category.components(separatedBy: ",").first(where: {$0 == self.selectedQuery}) != nil
         }
         
         if let category = split?.exercises.first(where: { $0.category == self.selectedQuery }) {
@@ -136,33 +137,39 @@ struct WorkoutEditView: View {
             ScrollView {
                 LazyVStack(alignment: .leading, pinnedViews: [.sectionHeaders]) {
                     Section(header: VStack(alignment: .leading, spacing: 10) {
-                        HStack {
-                            ForEach(queries, id: \.self) { query in
-                                QueryTag(query: query, isSelected: self.selectedQuery == query)
-                                    .onTapGesture {
-                                        self.selectedQuery = query
-                                    }
-                            }
-                        }
-                        .frame(maxWidth: .infinity, maxHeight: 50,  alignment: .leading)
-                    }
-                        .padding(.horizontal)
-                        .padding([.vertical], 5)
-                        .background(.white)) {
-                            getRequiredExerciseText()
-                                .font(.title3)
-                                .fontWeight(.bold)
-                                .padding()
-                            LazyVGrid(columns: columns, spacing: 10) {
-                                ForEach(filter()) { video in
-                                    let added = isAdded(video: video)
-                                    VideoCard(video: video, isAdded: added)
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack {
+                                
+                                ForEach(queries, id: \.self) { query in
+                                    QueryTag(query: query, isSelected: self.selectedQuery == query)
                                         .onTapGesture {
-                                            self.selectedVideo = video
+                                            self.selectedQuery = query
                                         }
                                 }
                             }
+                            .frame(maxWidth: .infinity, maxHeight: 50,  alignment: .leading)
                         }
+                        
+                    }
+                        .padding(.horizontal)
+                        .padding([.vertical], 5)
+                        .background(.white)
+                    ) {
+                        getRequiredExerciseText()
+                            .font(.title3)
+                            .fontWeight(.bold)
+                            .padding(.horizontal)
+                            .padding([.vertical], 5)
+                        LazyVGrid(columns: columns, spacing: 10) {
+                            ForEach(filter()) { video in
+                                let added = isAdded(video: video)
+                                VideoCard(video: video, isAdded: added)
+                                    .onTapGesture {
+                                        self.selectedVideo = video
+                                    }
+                            }
+                        }
+                    }
                 }
                 .sheet(item: self.$selectedVideo, onDismiss: handleDismiss) {
                     VideoView(addedExercises: $addedExercises, video: $0, dismissAction: handleDismiss, showButton: true)
@@ -180,11 +187,6 @@ struct WorkoutEditView: View {
                     )
                 }
             }
-            .overlay (
-                Color.white.frame(
-                    height: UIApplication.shared.windows.first?.safeAreaInsets.top)
-                .ignoresSafeArea(.all, edges: .top), alignment: .top
-            )
             .navigationTitle(split?.name ?? "Upper Body Volume")
             .navigationBarTitleDisplayMode(.large)
             .navigationBarBackButtonTitleHidden()
@@ -194,9 +196,9 @@ struct WorkoutEditView: View {
                         handleCreateWorkout()
                     }) {
                         Image(systemName: "plus.circle").foregroundColor(.colorPrimary)
-                    }.background {
-                        NavigationLink(destination: WorkoutView(day: split?.day, workout: addedExercises, categories: queries), isActive: $willMoveToNextScreen) { EmptyView() }
-                        
+                    }
+                    .navigationDestination(isPresented: $willMoveToNextScreen) {
+                        WorkoutView(day: split?.day, workout: addedExercises, categories: queries)
                     }
                 }
             }.tint(.colorPrimary)

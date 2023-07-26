@@ -9,10 +9,15 @@ import SwiftUI
 
 struct NutritionView: View {
     var body: some View {
-        VStack {
-            DonutChart()
-            
-            Spacer()
+        NavigationStack {
+            VStack {
+                DonutChart()
+                Spacer()
+            }
+            .navigationTitle("Nutrition")
+        }
+        .tabItem {
+            Label("Nutrition", systemImage: "chart.pie")
         }
     }
 }

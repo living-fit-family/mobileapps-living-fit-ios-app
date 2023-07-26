@@ -59,5 +59,4 @@ final class SplitSessionServiceImpl: ObservableObject, SplitSessionService {
                 self?.state = .success
             }.store(in: &subscriptions)
     }
-    
 }

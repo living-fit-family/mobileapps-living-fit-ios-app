@@ -17,7 +17,7 @@ struct QueryTag: View {
             .foregroundColor(isSelected ? .black : .gray)
             .padding(10)
             .background(.thinMaterial)
-            .cornerRadius(10)
+            .cornerRadius(8)
     }
 }
 

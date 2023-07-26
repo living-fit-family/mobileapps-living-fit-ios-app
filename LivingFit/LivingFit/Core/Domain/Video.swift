@@ -15,9 +15,11 @@ struct Video: Codable, Identifiable {
     var name: String
     var category: String
     var subCategory: String?
-    var setDuration: String
+    var sets: String?
+    var reps: String?
+    var rest: String?
+    var duration: String?
     var imageLink: String
-    var squareImageLink: String?
     var videoLink: String
 }
 
@@ -25,9 +27,11 @@ extension Video {
     static var sampleVideo = Video(
         id: "1",
         name: "Glute Bridge",
-        category: "Glutes",
-        setDuration: "4x10",
-        imageLink: "https://ik.imagekit.io/z9gymi5p9/dumbell_flat_bench_press.jpg?updatedAt=1689485634307",
+        category: "glutes",
+        sets: "4",
+        reps: "10",
+        rest: "1 minute",
+        imageLink: "https://ik.imagekit.io/z9gymi5p9/jump_rope.jpg?updatedAt=1689275393337",
         videoLink: "https://livingfitfamily.imgix.net/legs/leg_extension.mp4"
     )
 }

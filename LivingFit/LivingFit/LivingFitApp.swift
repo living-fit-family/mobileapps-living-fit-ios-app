@@ -31,25 +31,24 @@ struct LivingFitApp: App {
     
     init() {
         let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
         appearance.shadowColor = .clear
+        appearance.backgroundColor = .white
         UINavigationBar.appearance().standardAppearance = appearance
         UINavigationBar.appearance().scrollEdgeAppearance = appearance
-        UINavigationBar.appearance().isTranslucent = true
+        
+        
     }
     
     var body: some Scene {
         WindowGroup {
-            NavigationStack {
-                switch sessionService.state {
-                case .loggedIn:
-                    MainView()
-                case .loggedOut:
-                    ContentView()
-                }
+            switch sessionService.state {
+            case .loggedIn:
+                MainView()
+                    .environmentObject(sessionService)
+                    .environmentObject(splitSessionService)
+            case .loggedOut:
+                ContentView()
             }
-            .environmentObject(splitSessionService)
-            .environmentObject(sessionService)
         }
     }
 }
