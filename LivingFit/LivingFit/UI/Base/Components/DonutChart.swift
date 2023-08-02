@@ -34,7 +34,7 @@ struct DonutChart: View {
                     VStack {
                         Text("Total Calories")
                             .font(.headline)
-                        Text("3250 kcal")
+                        Text("1709 kcal")
                             .font(.subheadline)
                     }
                 }
@@ -48,7 +48,7 @@ struct DonutChart: View {
                             .foregroundStyle(datum.color.gradient)
                             .frame(width: 20, height: 20)
                         Text(datum.title)
-                        Text("\(Int(round(datum.macroPercent * 100)))%")
+                        Text("\(Int(round(datum.value)))g")
                     }
                 }
             }

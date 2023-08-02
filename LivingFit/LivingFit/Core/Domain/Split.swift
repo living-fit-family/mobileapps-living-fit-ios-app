@@ -19,12 +19,20 @@ struct Split: Codable, Identifiable {
 
 
 extension Split {
-    struct Segment: Codable, Identifiable {
+    struct Segment: Codable, Identifiable, Hashable, Equatable {
         let id: String
         let name: String
         let day: String
         let exercises: [Exercise]
         let placeholder: String
+        
+        static func ==(lhs: Segment, rhs: Segment) -> Bool {
+            return lhs.id == rhs.id
+        }
+        
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(id)
+        }
     }
 }
 

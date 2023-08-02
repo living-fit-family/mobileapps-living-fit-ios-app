@@ -39,14 +39,14 @@ final class FirebaseSplitSessionRespositoryAdapter: SplitSessionRepository {
         .eraseToAnyPublisher()
     }
     
-    func addUserWorkout(uid: String, day: String, workout: [Video]) -> AnyPublisher<Void, Error> {
+    func addUserWorkout(uid: String, day: String, workout: [Workout]) -> AnyPublisher<Void, Error> {
         Deferred {
             Future { promise in
                 do {
                     try Firestore.firestore()
                         .collection("users").document(uid)
                         .collection("workouts")
-                        .document(day).setData(from: Workout(videos: workout))
+                        .document(day).setData(from: WorkoutRoutine(workouts: workout))
                 } catch let error {
                     print(error)
                     promise(.failure(error))

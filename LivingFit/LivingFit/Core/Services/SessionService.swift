@@ -30,6 +30,7 @@ protocol SessionService {
 final class SessionServiceImpl: ObservableObject, SessionService {
     @Published var state: SessionState = .loggedOut
     @Published var user: UserSessionDetails?
+    @Published var image = UIImage()
     
     private var handler: AuthStateDidChangeListenerHandle?
     

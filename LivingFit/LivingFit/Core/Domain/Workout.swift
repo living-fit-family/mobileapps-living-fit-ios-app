@@ -13,7 +13,20 @@ import FirebaseFirestore
 import FirebaseFirestoreSwift
 import SwiftUI
 
-struct Workout: Codable, Identifiable {
-    @DocumentID var id: String?
+struct WorkoutRoutine: Codable {
+    var workouts: [Workout]
+}
+
+class Workout: Codable, Identifiable {
+    let name: String
     var videos: [Video]
+    
+    init(name: String, videos: [Video]) {
+        self.name = name
+        self.videos = videos
+    }
+    
+    func moveWorkout(from source: IndexSet, to destination: Int) {
+        videos.move(fromOffsets: source, toOffset: destination)
+    }
 }

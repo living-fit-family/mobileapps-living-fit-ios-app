@@ -10,7 +10,7 @@ import FirebaseFirestore
 import FirebaseFirestoreSwift
 import SwiftUI
 
-struct Video: Codable, Identifiable {
+struct Video: Codable, Identifiable, Hashable {
     @DocumentID var id: String?
     var name: String
     var category: String
@@ -20,7 +20,12 @@ struct Video: Codable, Identifiable {
     var rest: String?
     var duration: String?
     var imageLink: String
+    var squareImageLink: String?
     var videoLink: String
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
 }
 
 extension Video {

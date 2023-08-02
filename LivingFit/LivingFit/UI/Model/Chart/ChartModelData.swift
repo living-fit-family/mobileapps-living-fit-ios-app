@@ -20,9 +20,9 @@ struct ChartModelData: Identifiable {
 extension ChartModelData {
     static var sample: [ChartModelData] {
         [
-            ChartModelData(color: .red, value: 325, title: "Protein"),
-            ChartModelData(color: .green, value: 72, title: "Fat"),
-            ChartModelData(color: .blue, value: 325, title: "Carbs"),
+            ChartModelData(color: .red, value: 104, title: "Protein"),
+            ChartModelData(color: .green, value: 49, title: "Fat"),
+            ChartModelData(color: .blue, value: 228, title: "Carbs"),
         ]
     }
 }

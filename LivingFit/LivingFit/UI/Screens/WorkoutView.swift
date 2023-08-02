@@ -6,34 +6,64 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct WorkoutView: View {
-    var day: String? = ""
-    var workout: [Video] = []
-    var categories: [String] = []
+    @EnvironmentObject var splitSessionService: SplitSessionServiceImpl
+    var name: String = ""
+    var day: String = ""
     
+    func getWorkouts() -> [Workout] {
+        guard let workouts = splitSessionService.userWorkOuts[day] else { return [] }
+        return workouts
+    }
     
     var body: some View {
-        NavigationStack {
-            List(categories, id: \.self) { category in
-                Section(header: Text(category)) {
-                    ForEach(workout.filter {$0.category.components(separatedBy: ",").first(where: {$0 == category}) != nil}) { video in
-                        NavigationLink {
-                            VideoView(addedExercises: .constant([]), video: video, dismissAction: {}, showButton: false)
-                        } label: {
-                            WorkoutRow(video: video)
-                        }
+        VStack {
+            List {
+                ForEach(getWorkouts()) { workout in
+                    Section(header: Text(workout.name)) {
+                        ForEach(workout.videos, id: \.self) { video in
+                            NavigationLink {
+                                VideoView(addedExercises: .constant([]), video: video, dismissAction: {}, showButton: false)
+                            } label: {
+                                VStack(alignment: .leading) {
+                                    HStack(spacing: 0) {
+                                        KFImage.url(URL(string: video.squareImageLink ?? ""))
+                                            .loadDiskFileSynchronously()
+                                            .cacheMemoryOnly()
+                                            .fade(duration: 0.25)
+                                            .onProgress { receivedSize, totalSize in  }
+                                            .onSuccess { result in  }
+                                            .onFailure { error in }
+                                            .resizable()
+                                            .aspectRatio(CGSize(width: 1, height: 1), contentMode: .fill)
+                                            .frame(width: 80, height: 80)
+                                            .cornerRadius(8)
+                                        VStack(alignment: .leading, spacing: 8) {
+                                            Text(video.name)
+                                                .font(.headline)
+                                                .foregroundColor(Color(red: 0.15, green: 0.15, blue: 0.18))
+                                            if video.category == Query.cardio.rawValue {
+                                                Text("\(video.duration ?? "")")
+                                                    .foregroundColor(Color(hex: "3A4750"))
+                                            } else {
+                                                Text("\(video.sets ?? "") x \(video.reps ?? "")")
+                                                    .font(.subheadline)
+                                                    .foregroundColor(Color(red: 0.15, green: 0.15, blue: 0.18))
+                                            }
+                                        }
+                                        .padding(EdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10))
+                                    }
+                                }
+                            }
+                        }.onMove(perform: workout.moveWorkout)
                     }
-                    
                 }
             }
-            .listStyle(.grouped)
-            .frame(width: UIScreen.main.bounds.width + 25)
-            .navigationTitle(day ?? "")
-            ButtonView(title: "Finish Workout") {
-                //                addedExercises.append(video)
-                //                dismissAction()
-            }.padding()
+            .navigationTitle(name)
+            .navigationBarTitleDisplayMode(.large)
+            .listStyle(GroupedListStyle())
         }
     }
 }
@@ -41,7 +71,8 @@ struct WorkoutView: View {
 struct WorkoutView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
-            WorkoutView(day: "Monday", workout: [Video.sampleVideo], categories: ["glutes"])
+            WorkoutView(name: "Glutes", day: "Friday")
+                .environmentObject(SplitSessionServiceImpl(splitSessionRepository: FirebaseSplitSessionRespositoryAdapter()))
         }
     }
 }

@@ -14,6 +14,7 @@ struct Exercise {
 }
 
 struct WorkoutEditView: View {
+    @EnvironmentObject var bannerService: BannerService
     @EnvironmentObject var sessionService: SessionServiceImpl
     @EnvironmentObject var splitSesstionService: SplitSessionServiceImpl
     
@@ -100,11 +101,10 @@ struct WorkoutEditView: View {
         if showError != true {
             if let userId = sessionService.user?.id, let day = split?.day {
                 Task {
-                    await splitSesstionService.addUserWorkout(
-                        uid: userId, day: day, workout: addedExercises
-                    )
+                    await splitSesstionService.addUserWorkout(uid: userId, day: day, categories: queries, workout: addedExercises)
                 }
-                willMoveToNextScreen.toggle()
+                bannerService.setBanner(bannerType: .success(message: "Your \(split?.name ?? "new") workout is ready.", isPersistent: true))
+                willMoveToNextScreen = true
             }
         }
     }
@@ -133,76 +133,74 @@ struct WorkoutEditView: View {
     }
     
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                LazyVStack(alignment: .leading, pinnedViews: [.sectionHeaders]) {
-                    Section(header: VStack(alignment: .leading, spacing: 10) {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack {
-                                
-                                ForEach(queries, id: \.self) { query in
-                                    QueryTag(query: query, isSelected: self.selectedQuery == query)
-                                        .onTapGesture {
-                                            self.selectedQuery = query
-                                        }
-                                }
-                            }
-                            .frame(maxWidth: .infinity, maxHeight: 50,  alignment: .leading)
-                        }
-                        
-                    }
-                        .padding(.horizontal)
-                        .padding([.vertical], 5)
-                        .background(.white)
-                    ) {
-                        getRequiredExerciseText()
-                            .font(.title3)
-                            .fontWeight(.bold)
-                            .padding(.horizontal)
-                            .padding([.vertical], 5)
-                        LazyVGrid(columns: columns, spacing: 10) {
-                            ForEach(filter()) { video in
-                                let added = isAdded(video: video)
-                                VideoCard(video: video, isAdded: added)
+        ScrollView {
+            LazyVStack(alignment: .leading, pinnedViews: [.sectionHeaders]) {
+                Section(header: VStack(alignment: .leading, spacing: 10) {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack {
+                            
+                            ForEach(queries, id: \.self) { query in
+                                QueryTag(query: query, isSelected: self.selectedQuery == query)
                                     .onTapGesture {
-                                        self.selectedVideo = video
+                                        self.selectedQuery = query
                                     }
                             }
                         }
+                        .frame(maxWidth: .infinity, maxHeight: 50,  alignment: .leading)
                     }
+                    
                 }
-                .sheet(item: self.$selectedVideo, onDismiss: handleDismiss) {
-                    VideoView(addedExercises: $addedExercises, video: $0, dismissAction: handleDismiss, showButton: true)
-                }
-                .alert(isPresented: $showError) {
-                    Alert(
-                        title: Text(errorTitle),
-                        message: Text(errorDescription),
-                        dismissButton: Alert.Button.default(
-                            Text("Ok"), action: {
-                                errorTitle = ""
-                                errorDescription = ""
-                            }
-                        )
-                    )
+                .padding(.horizontal)
+                .padding([.vertical], 5)
+                .background(.white)) {
+                    getRequiredExerciseText()
+                        .font(.title3)
+                        .fontWeight(.bold)
+                        .padding(.horizontal)
+                        .padding([.vertical], 5)
+                    LazyVGrid(columns: columns, spacing: 10) {
+                        ForEach(filter()) { video in
+                            let added = isAdded(video: video)
+                            VideoCard(video: video, isAdded: added)
+                                .onTapGesture {
+                                    self.selectedVideo = video
+                                }
+                        }
+                    }
                 }
             }
-            .navigationTitle(split?.name ?? "Upper Body Volume")
-            .navigationBarTitleDisplayMode(.large)
-            .navigationBarBackButtonTitleHidden()
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(action: {
-                        handleCreateWorkout()
-                    }) {
-                        Image(systemName: "plus.circle").foregroundColor(.colorPrimary)
-                    }
-                    .navigationDestination(isPresented: $willMoveToNextScreen) {
-                        WorkoutView(day: split?.day, workout: addedExercises, categories: queries)
-                    }
-                }
-            }.tint(.colorPrimary)
+            .sheet(item: self.$selectedVideo, onDismiss: handleDismiss) {
+                VideoView(addedExercises: $addedExercises, video: $0, dismissAction: handleDismiss, showButton: true)
+            }
+            .alert(isPresented: $showError) {
+                Alert(
+                    title: Text(errorTitle),
+                    message: Text(errorDescription),
+                    dismissButton: Alert.Button.default(
+                        Text("Ok"), action: {
+                            errorTitle = ""
+                            errorDescription = ""
+                        }
+                    )
+                )
+            }
         }
+        .navigationTitle(split?.name ?? "Upper Body Volume")
+        .navigationBarTitleDisplayMode(.large)
+        .toolbar {
+            ToolbarItem(placement: .confirmationAction) {
+                Button(action: {
+                    handleCreateWorkout()
+                }) {
+                    Text("Create")
+                    Image(systemName: "square.and.pencil").foregroundColor(.colorPrimary)
+                }
+                .navigationDestination(isPresented: $willMoveToNextScreen) {
+                    WorkoutView(name: split?.name ?? "", day: split?.day ?? "")
+                }
+                
+            }
+        }.tint(.colorPrimary)
     }
 }
 
@@ -210,6 +208,7 @@ struct WorkoutEditView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
             WorkoutEditView()
+                .environmentObject(BannerService())
                 .environmentObject(SessionServiceImpl())
                 .environmentObject(SplitSessionServiceImpl(splitSessionRepository: FirebaseSplitSessionRespositoryAdapter()))
         }
