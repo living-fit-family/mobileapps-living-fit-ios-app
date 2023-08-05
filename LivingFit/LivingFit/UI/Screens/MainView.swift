@@ -9,35 +9,43 @@ import SwiftUI
 import StreamChat
 import StreamChatSwiftUI
 
-enum Tabs: String {
+enum ContentViewTab {
     case plan
     case nutrition
-    case chat
     case account
 }
 
+enum PlanNavDestination {
+    case workoutEdit
+    case workoutList
+}
+
+
+class AppState: ObservableObject {
+    @Published var selectedTab: ContentViewTab = .plan
+    @Published var planNavigation: [PlanNavDestination] = []
+}
+
 struct MainView: View {
-    @State private var selectedTab = Tabs.plan
+    @Injected(\.chatClient) public var chatClient
+    @StateObject var appState = AppState()
+    
     @EnvironmentObject var sessionService: SessionServiceImpl
     @EnvironmentObject var ModelData: ModelData
     
     var body: some View {
-        TabView(selection: $selectedTab) {
+        TabView(selection: $appState.selectedTab) {
             CurrentSplitListView()
-                .tag(Tabs.plan)
+                .tag(ContentViewTab.plan)
             NutritionView()
-                .tag(Tabs.nutrition)
-//            ChatChannelListScreen(title: "Family Chat")
-//                .badge(5)
-//                .tabItem {
-//                    Label("Chat", systemImage: "message")
-//                }
-//                .tag(Tabs.chat)
+                .tag(ContentViewTab.nutrition)
             AccountView()
-                .tag(Tabs.account)
+                .tag(ContentViewTab.account)
         }
         .tint(.colorPrimary)
+        .environmentObject(appState)
     }
+    
 }
 
 struct MainView_Previews: PreviewProvider {
@@ -46,13 +54,5 @@ struct MainView_Previews: PreviewProvider {
             .environmentObject(SessionServiceImpl())
             .environmentObject(SplitSessionServiceImpl(splitSessionRepository: FirebaseSplitSessionRespositoryAdapter()))
             .environmentObject(ModelData())
-            .previewDevice(PreviewDevice(rawValue: "iPhone SE (3rd generation)"))
-        
-        
-        MainView()
-            .environmentObject(SessionServiceImpl())
-            .environmentObject(SplitSessionServiceImpl(splitSessionRepository: FirebaseSplitSessionRespositoryAdapter()))
-            .environmentObject(ModelData())
-            .previewDevice(PreviewDevice(rawValue: "iPhone 14 Pro Max"))
     }
 }

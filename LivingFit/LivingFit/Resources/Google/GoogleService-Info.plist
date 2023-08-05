@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>226820754783-67pelqslkou30m92mfdmj5r9l5s7ld6e.apps.googleusercontent.com</string>
+	<string>226820754783-ma2nbaoc75t2ot7ql0v782e2nh3qkntv.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.226820754783-67pelqslkou30m92mfdmj5r9l5s7ld6e</string>
+	<string>com.googleusercontent.apps.226820754783-ma2nbaoc75t2ot7ql0v782e2nh3qkntv</string>
 	<key>API_KEY</key>
 	<string>AIzaSyCQ-4UdcGXOe17hyXCPJu_kK9CeyyAZiYo</string>
 	<key>GCM_SENDER_ID</key>
@@ -13,7 +13,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.livingfitfamily.LivingFit</string>
+	<string>com.livingfitfamily.LivingFitApp</string>
 	<key>PROJECT_ID</key>
 	<string>living-fit-family-32db6</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,7 +29,7 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:226820754783:ios:0bb43f91ece0f04267baea</string>
+	<string>1:226820754783:ios:3180fed5cea10c4b67baea</string>
 	<key>DATABASE_URL</key>
 	<string>https://living-fit-family-32db6-default-rtdb.firebaseio.com</string>
 </dict>

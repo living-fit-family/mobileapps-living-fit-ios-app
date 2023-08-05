@@ -6,10 +6,12 @@
 //
 
 import SwiftUI
+
 import AVFAudio
 
 @main
 struct LivingFitApp: App {
+    
     // register app delegate for Firebase setup
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject var bannerService = BannerService()
@@ -36,21 +38,6 @@ struct LivingFitApp: App {
             .environmentObject(modelData)
         }
     }
-}
-
-class AppState: ObservableObject {
-    
-    @Published var userState: UserState = .launchAnimation
-    
-    static let shared = AppState()
-    
-    private init() {}
-}
-
-enum UserState {
-    case launchAnimation
-    case notLoggedIn
-    case loggedIn
 }
 
 

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct TaskRow: View {
     var text: String
@@ -20,11 +21,7 @@ struct TaskRow: View {
 
 struct AccountView: View {
     @EnvironmentObject private var sessionService: SessionServiceImpl
-    @State private var allowNotifications = false
-    @State private var showingOptions = false
-    @State private var isPresenting = false
-    @State private var showSheet = false
-    @State private var sourceType: UIImagePickerController.SourceType = .photoLibrary
+    @State private var isPresentingLogoutAction: Bool = false
     
     func getUserFullName() -> String {
         if let firstName = sessionService.user?.firstName, let lastName = sessionService.user?.lastName {
@@ -34,46 +31,24 @@ struct AccountView: View {
         }
     }
     
+    func getHeight() -> String? {
+        return nil
+    }
+    
+    func getWeight() -> String? {
+        return nil
+    }
+    
+    func getAge() -> String? {
+        return nil
+    }
+    
     var body: some View {
         NavigationStack {
             Form {
                 Section {
                     HStack(spacing: 24) {
-                        ZStack(alignment: .bottomTrailing) {
-                            Image(uiImage: sessionService.image)
-                                .resizable()
-                                .scaledToFill()
-                                .background(
-                                    Image(systemName: "person.circle.fill")
-                                        .resizable()
-                                        .frame(width: 80, height: 80)
-                                        .foregroundColor(Color(UIColor.systemGray5)))
-                                .frame(width: 80, height: 80)
-                                .clipShape(Circle())
-                            Image(systemName: "plus")
-                                .foregroundColor(.white)
-                                .frame(width: 25, height: 25)
-                                .background(Color(hex: "55C856"))
-                                .clipShape(Circle())
-                                .overlay(Circle().stroke(Color.white, lineWidth: 2))
-                                .onTapGesture {
-                                    showingOptions = true
-                                }
-                                .confirmationDialog("Edit Profile Picture", isPresented: $showingOptions, titleVisibility: .visible) {
-                                    Button("Choose from library") {
-                                        sourceType = .photoLibrary
-                                        showSheet.toggle()
-                                    }
-                                    Button("Take photo") {
-                                        sourceType = .camera
-                                        showSheet.toggle()
-                                    }
-                                }
-                                .sheet(isPresented: $showSheet) {
-                                    // Pick an image from the photo library:
-                                    ImagePicker(sourceType: sourceType, selectedImage: $sessionService.image).background(.black)
-                                }
-                        }
+
                         VStack(alignment: .leading, spacing: 4) {
                             Text(getUserFullName())
                                 .font(.title2)
@@ -81,10 +56,10 @@ struct AccountView: View {
                         }
                     }
                     VStack(alignment: .leading) {
-                        NavigationLink(destination: EmptyView()) {
+                        NavigationLink(destination: EditProfileView()) {
                             HStack(spacing: 24) {
                                 VStack {
-                                    Text("5' 2\"")
+                                    Text(getHeight() ?? "--")
                                         .foregroundColor(Color(hex: "55C856"))
                                         .font(.headline)
                                     Text("Height")
@@ -92,7 +67,7 @@ struct AccountView: View {
                                         .font(.subheadline)
                                 }
                                 VStack {
-                                    Text("120 lbs")
+                                    Text(getWeight() ?? "--")
                                         .foregroundColor(Color(hex: "55C856"))
                                         .font(.headline)
                                     Text("Weight")
@@ -100,7 +75,7 @@ struct AccountView: View {
                                         .font(.subheadline)
                                 }
                                 VStack {
-                                    Text("27 yo")
+                                    Text(getAge() ?? "--")
                                         .foregroundColor(Color(hex: "55C856"))
                                         .font(.headline)
                                     Text("Age")
@@ -129,8 +104,8 @@ struct AccountView: View {
                     TaskRow(text: "Sign Out", image: "rectangle.portrait.and.arrow.right")
                         .foregroundColor(.red)
                         .onTapGesture {
-                            self.isPresenting.toggle()
-                        }.alert(isPresented: $isPresenting) {
+                            self.isPresentingLogoutAction.toggle()
+                        }.alert(isPresented: $isPresentingLogoutAction) {
                             Alert(title: Text("Sign out of your account?"),
                                   primaryButton: .destructive(Text("Sign Out")) {sessionService.signOut()},
                                   secondaryButton: .cancel()

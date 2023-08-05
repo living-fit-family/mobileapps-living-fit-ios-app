@@ -6,10 +6,10 @@
 //
 
 import StreamChatSwiftUI
+import StreamChat
 import SwiftUI
 
 class CustomFactory: ViewFactory {
-    
     @Injected(\.chatClient) public var chatClient
     
     private init() {}
@@ -18,5 +18,9 @@ class CustomFactory: ViewFactory {
     
     func makeChannelListHeaderViewModifier(title: String) -> some ChannelListHeaderViewModifier {
         CustomChannelModifier(title: title)
+    }
+    
+    func makeMessageAvatarView(for userDisplayInfo: UserDisplayInfo) -> some View {
+        CustomUserAvatar(userDisplayInfo: userDisplayInfo)
     }
 }

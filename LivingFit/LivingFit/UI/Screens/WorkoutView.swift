@@ -6,12 +6,17 @@
 //
 
 import SwiftUI
+import Foundation
 import Kingfisher
 
 struct WorkoutView: View {
     @EnvironmentObject var splitSessionService: SplitSessionServiceImpl
     var name: String = ""
     var day: String = ""
+    
+    private enum CoordinateSpaces {
+        case scrollView
+    }
     
     func getWorkouts() -> [Workout] {
         guard let workouts = splitSessionService.userWorkOuts[day] else { return [] }
@@ -22,51 +27,57 @@ struct WorkoutView: View {
         VStack {
             List {
                 ForEach(getWorkouts()) { workout in
-                    Section(header: Text(workout.name)) {
+                    Section(header: Text(workout.name.capitalized).foregroundColor(.black).padding(.bottom, 4)) {
                         ForEach(workout.videos, id: \.self) { video in
-                            NavigationLink {
-                                VideoView(addedExercises: .constant([]), video: video, dismissAction: {}, showButton: false)
-                            } label: {
-                                VStack(alignment: .leading) {
-                                    HStack(spacing: 0) {
-                                        KFImage.url(URL(string: video.squareImageLink ?? ""))
-                                            .loadDiskFileSynchronously()
-                                            .cacheMemoryOnly()
-                                            .fade(duration: 0.25)
-                                            .onProgress { receivedSize, totalSize in  }
-                                            .onSuccess { result in  }
-                                            .onFailure { error in }
-                                            .resizable()
-                                            .aspectRatio(CGSize(width: 1, height: 1), contentMode: .fill)
-                                            .frame(width: 80, height: 80)
-                                            .cornerRadius(8)
-                                        VStack(alignment: .leading, spacing: 8) {
-                                            Text(video.name)
-                                                .font(.headline)
-                                                .foregroundColor(Color(red: 0.15, green: 0.15, blue: 0.18))
-                                            if video.category == Query.cardio.rawValue {
-                                                Text("\(video.duration ?? "")")
-                                                    .foregroundColor(Color(hex: "3A4750"))
-                                            } else {
-                                                Text("\(video.sets ?? "") x \(video.reps ?? "")")
-                                                    .font(.subheadline)
-                                                    .foregroundColor(Color(red: 0.15, green: 0.15, blue: 0.18))
-                                            }
-                                        }
-                                        .padding(EdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10))
+                            HStack(spacing: 8) {
+                                KFImage.url(URL(string: video.squareImageLink ?? ""))
+                                    .loadDiskFileSynchronously()
+                                    .cacheMemoryOnly()
+                                    .fade(duration: 0.25)
+                                    .onProgress { receivedSize, totalSize in  }
+                                    .onSuccess { result in  }
+                                    .onFailure { error in }
+                                    .resizable()
+                                    .aspectRatio(CGSize(width: 1, height: 1), contentMode: .fit)
+                                    .frame(height: 55)
+                                    .cornerRadius(4)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(video.name)
+                                        .font(.subheadline)
+                                    if video.category == Query.cardio.rawValue {
+                                        Text("\(video.duration ?? "")")
+                                            .font(.subheadline)
+                                            .foregroundColor(.gray)
+                                    } else {
+                                        Text("\(video.sets ?? "") x \(video.reps ?? "")")
+                                            .font(.subheadline)
+                                            .foregroundColor(.gray)
                                     }
                                 }
+                                .alignmentGuide(.listRowSeparatorLeading) { viewDimensions in
+                                    return 0
+                                }
+//                                Spacer()
+//                                Image(systemName: "line.horizontal.3")
+                                
                             }
-                        }.onMove(perform: workout.moveWorkout)
+                        }
+                        .onMove(perform: workout.moveWorkout)
                     }
                 }
+                
             }
-            .navigationTitle(name)
-            .navigationBarTitleDisplayMode(.large)
-            .listStyle(GroupedListStyle())
+//            .toolbar {
+//                EditButton()
+//            }
         }
+        .navigationTitle(name)
+        .navigationBarTitleDisplayMode(.large)
+        .listStyle(.inset)
+        .scrollContentBackground(.hidden)
     }
 }
+
 
 struct WorkoutView_Previews: PreviewProvider {
     static var previews: some View {

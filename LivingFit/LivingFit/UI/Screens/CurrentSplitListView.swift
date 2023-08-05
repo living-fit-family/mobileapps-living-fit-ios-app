@@ -10,11 +10,14 @@ import Kingfisher
 import StreamChatSwiftUI
 
 struct CurrentSplitListView: View {
+    @EnvironmentObject var appState: AppState
     @EnvironmentObject var sessionService: SessionServiceImpl
     @EnvironmentObject var splitSessionService: SplitSessionServiceImpl
     
     @State private var isPresented = false
     @State private var path: [Int] = []
+    
+    @State var tabBarVisibility: Visibility = .hidden
     
     var date: Text {
         return Text(Date(), style: .date)
@@ -36,44 +39,41 @@ struct CurrentSplitListView: View {
     
     var body: some View {
         NavigationStack {
-            VStack(alignment: .leading, spacing: 24) {
-                HStack(spacing: 20) {
-                    Image(uiImage: sessionService.image)
-                        .resizable()
-                        .scaledToFill()
-                        .background(
-                            Image(systemName: "person.circle.fill")
-                                .resizable()
-                                .frame(width: 80, height: 80)
-                                .foregroundColor(Color(UIColor.systemGray5)))
-                        .frame(width: 80, height: 80)
-                        .clipShape(Circle())
-                    VStack(alignment: .leading) {
-                        Text("Hi, \(sessionService.user?.firstName ?? "Friend")")
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
-                            .foregroundColor(Color(hex: "#313131"))
-                        Text("Today is \(date)")
-                            .font(.title3)
-                            .foregroundColor(.gray)
-                            .fontWeight(.light)
+            //            VStack(alignment: .leading) {
+            if let segments = splitSessionService.split?.segments {
+                List {
+                    Section {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Hello, \(sessionService.user?.firstName ?? "Friend")")
+                                    .font(.title3)
+                                    .foregroundColor(.gray)
+                                    .fontWeight(.light)
+                                Text("Today is \(date)")
+                                    .font(.title2)
+                                    .fontWeight(.semibold)
+                            }
+                            Spacer()
+                            ProfileImageView(showingOptions: .constant(false), imageUrl: URL(string: sessionService.user?.photoURL ?? ""), enableEditMode: false)
+                            
+                        }
                     }
-                }
-                .padding(.horizontal)
-                
-                
-                
-                if let segments = splitSessionService.split?.segments {
-                    List {
-                        Section {
-                            VStack(alignment: .leading) {
-                                Text("Current Split Focus (Week 1 of 4)")
+                    .listRowSeparator(.hidden)
+                    .listSectionSeparator(.hidden)
+                    Section {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Split Focus")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                            HStack {
+                                Text("\(splitSessionService.split?.name ?? "")")
                                     .font(.subheadline)
-                                    .fontWeight(.semibold)
-                                Text(splitSessionService.split?.name ?? "")
-                                    .font(.headline)
-                                    .fontWeight(.semibold)
                                     .foregroundColor(.colorPrimary)
+                                    .fontWeight(.medium)
+                                Spacer()
+                                Text("Week 1 / 4")
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
                             }
                         }
                         ForEach(segments, id: \.self) { segment in
@@ -111,23 +111,33 @@ struct CurrentSplitListView: View {
                                 }
                                 
                             }
-                            
                         }
+                        
                     }
-                    .listStyle(.plain)
                 }
-            }
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    NavigationLink(destination: ChatChannelListView(viewFactory: CustomFactory.shared, title: "Family Chat")){
-                        Image(systemName: "message")
-                            .renderingMode(.template)
+                .listStyle(.insetGrouped)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Image("logo")
                             .resizable()
-                            .frame(width: 20, height: 20)
-                            .fontWeight(.light)
-                            .foregroundColor(Color(hex: "#313131"))
+                            .aspectRatio(contentMode: .fit)
+                            .frame(height: 40)
+                        
                     }
-                    
+                }
+                .navigationTitle("Workout Plan")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        NavigationLink(destination: ChatChannelListView(viewFactory: CustomFactory.shared, title: "Family Chat", handleTabBarVisibility: false, embedInNavigationView: false)){
+                            Image(systemName: "message")
+                                .resizable()
+                                .frame(width: 22, height: 22)
+                                .fontWeight(.light)
+                                .foregroundColor(.black)
+                        }
+                        
+                    }
                 }
             }
         }
@@ -141,15 +151,9 @@ struct CurrentSplitListView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
             CurrentSplitListView()
+                .environmentObject(AppState())
                 .environmentObject(SessionServiceImpl())
                 .environmentObject(SplitSessionServiceImpl(splitSessionRepository: FirebaseSplitSessionRespositoryAdapter()))
-                .previewDevice(PreviewDevice(rawValue: "iPhone SE (3rd generation)"))
-        }
-        NavigationStack {
-            CurrentSplitListView()
-                .environmentObject(SessionServiceImpl())
-                .environmentObject(SplitSessionServiceImpl(splitSessionRepository: FirebaseSplitSessionRespositoryAdapter()))
-                .previewDevice(PreviewDevice(rawValue: "iPhone 14"))
         }
     }
 }

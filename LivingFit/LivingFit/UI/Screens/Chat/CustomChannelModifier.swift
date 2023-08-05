@@ -9,20 +9,29 @@ import StreamChatSwiftUI
 import SwiftUI
 
 struct CustomChannelModifier: ChannelListHeaderViewModifier {
-
+    
+    @Injected(\.chatClient) var chatClient
+    
     var title: String
-
-    @State var profileShown = false
-
+    
+    @State var isNewChatShown = false
+    @State var logoutAlertShown = false
+    
     func body(content: Content) -> some View {
-        content.toolbar {
-            CustomChannelHeader(title: title) {
-                profileShown = true
-            }
-        }
-        .sheet(isPresented: $profileShown) {
-            Text("Profile View")
+        ZStack {
+            content
+                .toolbar(.hidden, for: .tabBar)
+                .toolbar {
+                    CustomChannelListHeader(
+                        title: title,
+                        currentUserController: chatClient.currentUserController(),
+                        isNewChatShown: $isNewChatShown
+                    )
+                }
+                .navigationDestination(isPresented: $isNewChatShown) {
+                    CreateGroupView(isNewChatShown: $isNewChatShown)
+                }
         }
     }
-
 }
+

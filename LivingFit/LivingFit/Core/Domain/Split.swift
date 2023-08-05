@@ -29,7 +29,7 @@ extension Split {
         static func ==(lhs: Segment, rhs: Segment) -> Bool {
             return lhs.id == rhs.id
         }
-        
+
         func hash(into hasher: inout Hasher) {
             hasher.combine(id)
         }

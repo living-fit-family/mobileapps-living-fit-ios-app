@@ -5,34 +5,27 @@
 //  Created by Alexander Cleoni on 8/2/23.
 //
 import SwiftUI
+import StreamChat
 import StreamChatSwiftUI
 
-public struct CustomChannelHeader: ToolbarContent {
-
+public struct CustomChannelListHeader: ToolbarContent {
     @Injected(\.fonts) var fonts
-    @Injected(\.images) var images
-
+    
     public var title: String
-    public var onTapLeading: () -> ()
-
+    public var currentUserController: CurrentChatUserController
+    
+    @Binding var isNewChatShown: Bool
+    
     public var body: some ToolbarContent {
         ToolbarItem(placement: .principal) {
             Text(title)
                 .font(fonts.bodyBold)
         }
         ToolbarItem(placement: .navigationBarTrailing) {
-            NavigationLink {
-                Text("This is injected view")
-            } label: {
-                Image(systemName: "pencil")
-                    .resizable()
-            }
-        }
-        ToolbarItem(placement: .navigationBarLeading) {
             Button {
-                onTapLeading()
+                isNewChatShown = true
             } label: {
-                Image(systemName: "chevron.left")
+                Image(systemName: "square.and.pencil")
                     .resizable()
             }
         }

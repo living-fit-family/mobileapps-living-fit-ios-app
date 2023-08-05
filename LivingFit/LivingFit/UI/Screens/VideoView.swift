@@ -6,9 +6,12 @@
 //
 import SwiftUI
 import Combine
+import VideoPlayer
+import CoreMedia
 
 
 struct VideoView: View {
+    @State private var time: CMTime = .zero
     @Binding var addedExercises: [Video]
     var video: Video
     var dismissAction: () -> Void
@@ -25,8 +28,9 @@ struct VideoView: View {
     
     var body: some View {
         VStack {
-            PlayerView(url: video.videoLink)
-                .aspectRatio(CGSize(width: 4, height: 5 ), contentMode: .fit)
+            VideoPlayer(url: URL(string: video.videoLink)!, play: .constant(true), time: $time)
+                .autoReplay(true)
+                .mute(true)
             HStack {
                 VStack(alignment: .leading, spacing: 12) {
                     Text(video.name.replacingOccurrences(of: "\\n", with: "\n"))
