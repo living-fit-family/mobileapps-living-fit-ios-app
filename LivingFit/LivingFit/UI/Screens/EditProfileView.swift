@@ -93,7 +93,7 @@ struct EditProfileView: View {
                                         ProgressView()
                                     }
                                 }
-                                
+                            
                             HStack(alignment: .lastTextBaseline) {
                                 Text(sessionService.user?.firstName ?? "Living")
                                 Text(sessionService.user?.lastName ?? "Fit User")
@@ -108,7 +108,7 @@ struct EditProfileView: View {
                         .padding(.vertical)
                         .frame(maxWidth: .infinity, alignment: .center)
                         
-                        Picker("Inches", selection: $selectedSystem) {
+                        Picker("System", selection: $selectedSystem) {
                             ForEach(UnitOfMeasure.allCases) { option in
                                 Text("\(option.rawValue.capitalized)")
                             }

@@ -10,74 +10,104 @@ import SwiftUI
 struct SignInView: View {
     @Environment(\.dismiss) var dismiss
     
-    @State var email: String = ""
-    @State var password: String = ""
-    @State var showPassword: Bool = false
+    @State private var email: String = ""
+    @State private var password: String = ""
+    @State private var showPassword: Bool = false
+    @State private var isPresentWebView: Bool = false
+    
+    @State private var showPrivacyPolicy: Bool = false
+    @State private var showTermsOfService: Bool = false
+    
+    var privacyPolicy = "https://app.termly.io/document/privacy-policy/8fda4592-f666-4715-9086-b9985d880dfa"
+    
+    var termsOfService = "https://app.termly.io/document/terms-of-service/add938b1-59ab-4529-8741-e60383f45ce5"
+    
     @StateObject private var vm = SignInViewModelImpl(service: AuthServiceImpl(authRepository: FirebaseAuthRepositoryAdapter()))
     
     var body: some View {
         NavigationStack {
             VStack(spacing: 16) {
-                VStack(spacing: 16) {
-                    VStack(alignment: .leading) {
-                        Text("Email")
-                            .fontWeight(.semibold)
-                            .foregroundColor(Color(hex: "3A4750"))
-                        TextFieldView(input: $email, placeholder: "example@mail.com", keyboardType: .emailAddress, isSecure: false)
-                    }
-                    VStack(alignment: .leading) {
-                        Text("Password")
-                            .fontWeight(.semibold)
-                            .foregroundColor(Color(hex: "3A4750"))
-                        HStack {
-                            if !showPassword {
-                                TextFieldView(input: $password, placeholder: "Password", keyboardType: .default, isSecure: true)
-                            } else {
-                                TextFieldView(input: $password, placeholder: "Password", keyboardType: .default, isSecure: false)
-                            }
-                        }
-                        .overlay(alignment: .trailing) {
-                            Image(systemName: showPassword ? "eye" : "eye.slash")
-                                .resizable()
-                                .frame(width: 18, height: 15)
-                                .opacity(0.60)
-                                .onTapGesture {
-                                    showPassword.toggle()
-                                }
-                                .padding()
-                        }
-                    }
-                    HStack {
-                        Spacer()
-                        NavigationLink(destination: ResetPasswordView()) {
-                            Text("Forgot Password?")
-                                .fontWeight(.semibold)
-                                .foregroundColor(.black)
-                        }
-                    }
-                    VStack(alignment: .leading, spacing: 16) {
-                        ButtonView(title: "Sign In") {
-                            vm.signIn(email: email, password: password)
-                        }
-                        HStack {
-                            Text("By signing in you agree to our ") +
-                            Text("Terms of Service ")
-                                .underline()
-                                .foregroundColor(.green) +
-                            Text("and ") +
-                            Text("Privacy Policy")
-                                .underline()
-                                .foregroundColor(.green)
-                        }
-                        .font(.subheadline)
-                        .padding(.horizontal)
-                        .multilineTextAlignment(.leading)
-                    }
-                    .padding(.top)
+                VStack(alignment: .leading) {
+                    Text("Email")
+                        .fontWeight(.semibold)
+                        .foregroundColor(Color(hex: "3A4750"))
+                    TextFieldView(input: $email, placeholder: "example@mail.com", keyboardType: .emailAddress, isSecure: false)
                 }
-                
+                VStack(alignment: .leading) {
+                    Text("Password")
+                        .fontWeight(.semibold)
+                        .foregroundColor(Color(hex: "3A4750"))
+                    HStack {
+                        if !showPassword {
+                            TextFieldView(input: $password, placeholder: "Password", keyboardType: .default, isSecure: true)
+                        } else {
+                            TextFieldView(input: $password, placeholder: "Password", keyboardType: .default, isSecure: false)
+                        }
+                    }
+                    .overlay(alignment: .trailing) {
+                        Image(systemName: showPassword ? "eye" : "eye.slash")
+                            .resizable()
+                            .frame(width: 18, height: 15)
+                            .opacity(0.60)
+                            .onTapGesture {
+                                showPassword.toggle()
+                            }
+                            .padding()
+                    }
+                }
+                HStack {
+                    Spacer()
+                    NavigationLink(destination: ResetPasswordView()) {
+                        Text("Forgot Password?")
+                            .fontWeight(.semibold)
+                            .foregroundColor(.black)
+                    }
+                }
+                VStack(alignment: .center, spacing: 16) {
+                    ButtonView(title: "Sign In") {
+                        vm.signIn(email: email, password: password)
+                    }
+                    VStack(alignment: .leading) {
+                        HStack(spacing: 4) {
+                            Text("By continuing, you agree to our")
+                                .font(.caption)
+                            
+                            Button(action: {
+                                showTermsOfService.toggle()
+                            }) {
+                                Text("Terms of Service (EULA)")
+                                    .font(.caption)
+                                    .foregroundColor(Color(hex: "#55C856"))
+                                    .underline()
+                            }
+                            .sheet(isPresented: $showTermsOfService, content: {
+                                WebView(url: URL(string: termsOfService)!)
+                            })
+                        }
+                        
+                        HStack(spacing: 4) {
+                            Text("and")
+                                .font(.caption)
+                            
+                            Button(action: {
+                                showPrivacyPolicy.toggle()
+                            }) {
+                                Text("Privacy Policy.")
+                                    .font(.caption)
+                                    .foregroundColor(Color(hex: "#55C856"))
+                                    .underline()
+                            }
+                            .sheet(isPresented: $showPrivacyPolicy, content: {
+                                WebView(url: URL(string: privacyPolicy)!)
+                            })
+                        }
+                    }
+                }
+                .padding(.top)
                 Spacer()
             }
+            .padding()
+            .ignoresSafeArea(.keyboard)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button(action: {
@@ -89,6 +119,7 @@ struct SignInView: View {
                 }
             }
             .navigationTitle("Sign in to Living Fit")
+            .navigationBarTitleDisplayMode(.inline)
             .alert(isPresented: $vm.hasError) {
                 if case .failure(let error) = vm.state {
                     return Alert(title: Text("Error"), message: Text(error.localizedDescription))
@@ -96,11 +127,22 @@ struct SignInView: View {
                     return Alert(title: Text("Error"), message: Text("Something went wrong."))
                 }
             }
-            .navigationBarTitleDisplayMode(.large)
-            .navigationBarBackButtonHidden(true)
-            .padding()
-        }
+            .sheet(isPresented: $isPresentWebView, onDismiss: {
+                showPrivacyPolicy = false
+                showTermsOfService = false
+            }) {
+                if (showPrivacyPolicy) {
+                    WebView(url: URL(string: privacyPolicy)!)
+                        .ignoresSafeArea()
+                } else {
+                    WebView(url: URL(string: termsOfService)!)
+                        .ignoresSafeArea()
+                }
 
+            }
+            .navigationBarBackButtonHidden(true)
+        }
+        
     }
 }
 

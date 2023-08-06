@@ -14,11 +14,6 @@ struct CurrentSplitListView: View {
     @EnvironmentObject var sessionService: SessionServiceImpl
     @EnvironmentObject var splitSessionService: SplitSessionServiceImpl
     
-    @State private var isPresented = false
-    @State private var path: [Int] = []
-    
-    @State var tabBarVisibility: Visibility = .hidden
-    
     var date: Text {
         return Text(Date(), style: .date)
     }
@@ -39,7 +34,6 @@ struct CurrentSplitListView: View {
     
     var body: some View {
         NavigationStack {
-            //            VStack(alignment: .leading) {
             if let segments = splitSessionService.split?.segments {
                 List {
                     Section {
@@ -77,13 +71,7 @@ struct CurrentSplitListView: View {
                             }
                         }
                         ForEach(segments, id: \.self) { segment in
-                            NavigationLink {
-                                if workoutExists(segment: segment) {
-                                    WorkoutView(name: segment.name, day: segment.day)
-                                } else {
-                                    WorkoutEditView(split: segment)
-                                }
-                            } label: {
+                            NavigationLink(value: segment) {
                                 HStack(spacing: 10) {
                                     KFImage.url(URL(string: segment.placeholder))
                                         .loadDiskFileSynchronously()
@@ -111,11 +99,19 @@ struct CurrentSplitListView: View {
                                 }
                                 
                             }
+                            
                         }
-                        
                     }
                 }
-                .listStyle(.insetGrouped)
+                .navigationDestination(for: Split.Segment.self) { segment in
+                    if workoutExists(segment: segment) {
+                        WorkoutView(name: segment.name, day: segment.day)
+                    } else {
+                        WorkoutEditView(split: segment)
+                    }
+                }
+                .navigationTitle("Workout Plan")
+                .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .navigationBarLeading) {
                         Image("logo")
@@ -125,8 +121,6 @@ struct CurrentSplitListView: View {
                         
                     }
                 }
-                .navigationTitle("Workout Plan")
-                .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         NavigationLink(destination: ChatChannelListView(viewFactory: CustomFactory.shared, title: "Family Chat", handleTabBarVisibility: false, embedInNavigationView: false)){

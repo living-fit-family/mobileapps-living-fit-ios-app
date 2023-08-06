@@ -20,10 +20,15 @@ enum PlanNavDestination {
     case workoutList
 }
 
+enum AccountNavDestination {
+    case editProfile
+}
+
 
 class AppState: ObservableObject {
     @Published var selectedTab: ContentViewTab = .plan
     @Published var planNavigation: [PlanNavDestination] = []
+    @Published var accountNavigation: [AccountNavDestination] = []
 }
 
 struct MainView: View {
@@ -32,6 +37,9 @@ struct MainView: View {
     
     @EnvironmentObject var sessionService: SessionServiceImpl
     @EnvironmentObject var ModelData: ModelData
+    
+    @State var showingDetail = false
+    @State var selectedIndex:Int = 0
     
     var body: some View {
         TabView(selection: $appState.selectedTab) {

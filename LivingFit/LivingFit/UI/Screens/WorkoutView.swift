@@ -9,8 +9,14 @@ import SwiftUI
 import Foundation
 import Kingfisher
 
+enum Selection: String, CaseIterable {
+    case edit
+    case delete
+}
+
 struct WorkoutView: View {
     @EnvironmentObject var splitSessionService: SplitSessionServiceImpl
+    @State private var selection: Selection = .edit
     var name: String = ""
     var day: String = ""
     
@@ -21,6 +27,22 @@ struct WorkoutView: View {
     func getWorkouts() -> [Workout] {
         guard let workouts = splitSessionService.userWorkOuts[day] else { return [] }
         return workouts
+    }
+    
+    var customLabel: some View {
+        HStack {
+            Image(systemName: "paperplane")
+            Text(String("selectedNumber"))
+            Spacer()
+            Text("⌵")
+                .offset(y: -4)
+        }
+        .foregroundColor(.white)
+        .font(.title)
+        .padding()
+        .frame(height: 32)
+        .background(Color.blue)
+        .cornerRadius(16)
     }
     
     var body: some View {
@@ -57,8 +79,6 @@ struct WorkoutView: View {
                                 .alignmentGuide(.listRowSeparatorLeading) { viewDimensions in
                                     return 0
                                 }
-//                                Spacer()
-//                                Image(systemName: "line.horizontal.3")
                                 
                             }
                         }
@@ -67,14 +87,25 @@ struct WorkoutView: View {
                 }
                 
             }
-//            .toolbar {
-//                EditButton()
-//            }
         }
         .navigationTitle(name)
         .navigationBarTitleDisplayMode(.large)
         .listStyle(.inset)
         .scrollContentBackground(.hidden)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Menu {
+                    Picker("Edit", selection: $selection) {
+                        ForEach(Selection.allCases, id: \.self) { selection in // 4
+                            Text(selection.rawValue.capitalized + " " + "workout")
+                                .foregroundColor(selection == .delete ? .red : .black)
+                        }
+                    }
+                } label: {
+                    Image(systemName: "slider.horizontal.3")
+                }
+            }
+        }
     }
 }
 

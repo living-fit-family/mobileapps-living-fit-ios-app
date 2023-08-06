@@ -137,12 +137,18 @@ private extension SessionServiceImpl {
                     self.user = UserSessionDetails(id: document.documentID, firstName: firstName, lastName: lastName, photoURL: photoUrl ?? "")
                     
                     let token = try! Token(rawValue: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYkoyZVRVRk1QOVVaUmNiT0pZenJsb0JCaXVkMiJ9.tXQl-DHUDIeyudZTQh0uTETbOrnaTJ8njojAYKsqmJ8")
+                    
+//                    self.chatClient.connectUser(userInfo: <#T##UserInfo#>) { <#@escaping (Result<Token, Error>) -> Void#> in
+//                        <#code#>
+//                    }
+                    
+//                    TokenProvider
 
                     // Call `connectUser` on our SDK to get started.
                     self.chatClient.connectUser(
                         userInfo: .init(id: uid,
                                         name: firstName + " " + lastName,
-                                        imageURL: Auth.auth().currentUser?.photoURL),
+                                        imageURL: URL(string: photoUrl ?? "")),
                         token: token
                     ) { error in
                         if let error = error {

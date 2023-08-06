@@ -46,6 +46,7 @@ struct ContentView: View {
                 }
             }
         }
+        .ignoresSafeArea(.keyboard)
         .background(.black)
     }
 }
