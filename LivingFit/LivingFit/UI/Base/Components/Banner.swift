@@ -10,13 +10,15 @@ import SwiftUI
 
 enum BannerType {
     var id: Self { self }
+    case info(message: String, isPersistent: Bool = false)
     case success(message: String, isPersistent: Bool = false)
     case error(message: String, isPersistent: Bool = false)
     case warning(message: String, isPersistent: Bool = false)
     
     var backgroundColor: Color {
         switch self {
-        case .success: return Color(hex: "#b6ffb8")
+        case .info: return Color.blue
+        case .success: return Color(hex: "55C856")
         case .warning: return Color.yellow
         case .error: return Color.red
         }
@@ -24,6 +26,7 @@ enum BannerType {
     
     var imageName: String {
         switch self {
+        case .info: return "info.circle"
         case .success: return "checkmark.circle"
         case .warning: return "exclamationmark.triangle.fill"
         case .error: return "xmark.circle.fill"
@@ -32,14 +35,14 @@ enum BannerType {
     
     var message: String {
         switch self {
-        case let .success(message, _), let .warning(message, _), let .error(message, _):
+        case let .info(message, _), let .success(message, _), let .warning(message, _), let .error(message, _):
             return message
         }
     }
     
     var isPersistent: Bool {
         switch self {
-        case let .success(_, isPersistent), let .warning(_, isPersistent), let .error(_, isPersistent):
+        case let .info(_, isPersistent), let .success(_, isPersistent), let .warning(_, isPersistent), let .error(_, isPersistent):
             return isPersistent
         }
     }
@@ -55,15 +58,11 @@ struct BannerView: View {
             Image(systemName: banner.imageName)
                 .font(.system(size: 20))
                 .fontWeight(.light)
-                .foregroundColor(.black)
+                .foregroundColor(.white)
                 .padding(5)
             VStack(alignment: .leading, spacing: 5) {
-                Text("Success")
-                    .foregroundColor(.black)
-                    .font(.headline)
-                    .fontWeight(.medium)
                 Text(banner.message)
-                    .foregroundColor(.black)
+                    .foregroundColor(.white)
                     .fontWeight(.light)
                     .font(banner.message.count > 25 ? .caption : .footnote)
                     .multilineTextAlignment(.leading)
@@ -111,7 +110,7 @@ struct BannerView: View {
         }
         .onAppear {
             guard !banner.isPersistent else { return }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 4.5) {
                 withAnimation {
                     bannerService.isAnimating = false
                     bannerService.bannerType = nil

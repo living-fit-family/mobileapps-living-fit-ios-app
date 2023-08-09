@@ -9,10 +9,16 @@ import SwiftUI
 import Kingfisher
 import StreamChatSwiftUI
 
+enum Destination {
+    case workout
+    case editWorkout
+}
+
 struct CurrentSplitListView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var sessionService: SessionServiceImpl
     @EnvironmentObject var splitSessionService: SplitSessionServiceImpl
+    @State var showProfile = false
     
     var date: Text {
         return Text(Date(), style: .date)
@@ -32,28 +38,43 @@ struct CurrentSplitListView: View {
         return queries
     }
     
+    func getDestination(segment: Split.Segment) -> Destination {
+        if workoutExists(segment: segment) {
+            return .workout
+        } else {
+            return .editWorkout
+        }
+    }
+    
     var body: some View {
         NavigationStack {
             if let segments = splitSessionService.split?.segments {
                 List {
                     Section {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("Hello, \(sessionService.user?.firstName ?? "Friend")")
-                                    .font(.title3)
-                                    .foregroundColor(.gray)
-                                    .fontWeight(.light)
-                                Text("Today is \(date)")
-                                    .font(.title2)
-                                    .fontWeight(.semibold)
+                        ZStack {
+                            VStack {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text("Hello, \(sessionService.user?.firstName ?? "Friend")")
+                                            .font(.title3)
+                                            .foregroundColor(.gray)
+                                            .fontWeight(.light)
+                                        Text("Today is \(date)")
+                                            .font(.title3)
+                                            .fontWeight(.semibold)
+                                    }
+                                    Spacer()
+                                    ProfileImageView(showingOptions: .constant(false), imageUrl: URL(string: sessionService.user?.photoUrl ?? ""), enableEditMode: false)
+                                }
                             }
-                            Spacer()
-                            ProfileImageView(showingOptions: .constant(false), imageUrl: URL(string: sessionService.user?.photoURL ?? ""), enableEditMode: false)
-                            
+                            NavigationLink(destination: ProfileView()) {
+                                EmptyView()
+                            }
+                            .fixedSize()
+                            .opacity(0)
                         }
                     }
-                    .listRowSeparator(.hidden)
-                    .listSectionSeparator(.hidden)
+                    
                     Section {
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Split Focus")
@@ -65,13 +86,14 @@ struct CurrentSplitListView: View {
                                     .foregroundColor(.colorPrimary)
                                     .fontWeight(.medium)
                                 Spacer()
-                                Text("Week 1 / 4")
+                                Text("Week \(splitSessionService.split?.startDate ?? "") / \(splitSessionService.split?.endDate ?? "")")
                                     .font(.subheadline)
                                     .fontWeight(.medium)
                             }
                         }
                         ForEach(segments, id: \.self) { segment in
-                            NavigationLink(value: segment) {
+                            NavigationLink(destination: getDestination(segment: segment) == .workout ? AnyView(NavigationLazyView(WorkoutView(split: segment))) :  AnyView(NavigationLazyView(WorkoutEditView(split: segment)))
+                            ){
                                 HStack(spacing: 10) {
                                     KFImage.url(URL(string: segment.placeholder))
                                         .loadDiskFileSynchronously()
@@ -87,7 +109,6 @@ struct CurrentSplitListView: View {
                                     VStack(alignment: .leading, spacing: 8) {
                                         Text(segment.day)
                                             .font(.headline)
-                                            .foregroundColor(Color(red: 0.15, green: 0.15, blue: 0.18))
                                         Text(segment.name)
                                             .font(.subheadline)
                                             .foregroundColor(.gray)
@@ -103,33 +124,14 @@ struct CurrentSplitListView: View {
                         }
                     }
                 }
-                .navigationDestination(for: Split.Segment.self) { segment in
-                    if workoutExists(segment: segment) {
-                        WorkoutView(name: segment.name, day: segment.day)
-                    } else {
-                        WorkoutEditView(split: segment)
-                    }
-                }
                 .navigationTitle("Workout Plan")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .navigationBarLeading) {
-                        Image("logo")
+                        Image("full-logo-transparent-white")
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(height: 40)
-                        
-                    }
-                }
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        NavigationLink(destination: ChatChannelListView(viewFactory: CustomFactory.shared, title: "Family Chat", handleTabBarVisibility: false, embedInNavigationView: false)){
-                            Image(systemName: "message")
-                                .resizable()
-                                .frame(width: 22, height: 22)
-                                .fontWeight(.light)
-                                .foregroundColor(.black)
-                        }
                         
                     }
                 }
@@ -151,3 +153,14 @@ struct CurrentSplitListView_Previews: PreviewProvider {
         }
     }
 }
+
+struct NavigationLazyView<Content: View>: View {
+    let build: () -> Content
+    init(_ build: @autoclosure @escaping () -> Content) {
+        self.build = build
+    }
+    var body: Content {
+        build()
+    }
+}
+

@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-
 import AVFAudio
 
 @main
@@ -21,21 +20,11 @@ struct LivingFitApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ZStack {
-                switch sessionService.state {
-                case .loggedIn:
-                    MainView()
-                    if let type = bannerService.bannerType {
-                        BannerView(banner: type)
-                    }
-                case .loggedOut:
-                    ContentView()
-                }
-            }
-            .environmentObject(bannerService)
-            .environmentObject(sessionService)
-            .environmentObject(splitSessionService)
-            .environmentObject(modelData)
+            ViewCoordinator()
+                .environmentObject(bannerService)
+                .environmentObject(sessionService)
+                .environmentObject(splitSessionService)
+                .environmentObject(modelData)
         }
     }
 }

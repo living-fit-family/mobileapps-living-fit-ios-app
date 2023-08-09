@@ -6,6 +6,7 @@
 //
 import Foundation
 import FirebaseFirestore
+import FirebaseAuth
 import FirebaseFirestoreSwift
 import Combine
 
@@ -35,7 +36,7 @@ final class SplitSessionServiceImpl: ObservableObject, SplitSessionService {
         self.splitSessionRepository = splitSessionRepository
         Task.init {
             await fetchCurrentSplit()
-            handleRefresh(with: "0riFfEVjjjdyDkFLK1crmv5gfqO2")
+            self.handleRefresh()
         }
     }
     
@@ -72,24 +73,40 @@ final class SplitSessionServiceImpl: ObservableObject, SplitSessionService {
             }.store(in: &subscriptions)
     }
     
-    func handleRefresh(with uid: String) {
-        let docRef = Firestore.firestore().collection("users").document(uid).collection("workouts")
-        docRef
-            .addSnapshotListener { [weak self] querySnapshot, error in
-                guard let querySnapshot = querySnapshot else {
-                    //                    print("Error retreiving collection: \(error)")
-                    return
+    func deleteUserWorkout(uid: String, day: String) async {
+        self.userWorkOuts.removeValue(forKey: day)
+        splitSessionRepository.deleteUserWorkout(uid: uid, day: day)
+            .sink { res in
+                switch res {
+                case .failure(let err):
+                    self.state = .failure(err: err)
+                default: break
                 }
-                querySnapshot.documents.forEach { document in
-                    guard let self = self,
-                          let workouts: WorkoutRoutine = try? document.data(as: WorkoutRoutine.self) else {
+            } receiveValue: { [weak self] in
+                self?.state = .success
+            }.store(in: &subscriptions)
+    }
+    
+    func handleRefresh() {
+        if let user = Auth.auth().currentUser {
+            let docRef = Firestore.firestore().collection("users").document(user.uid).collection("workouts")
+            docRef
+                .addSnapshotListener { [weak self] querySnapshot, error in
+                    guard let querySnapshot = querySnapshot else {
+                        //                    print("Error retreiving collection: \(error)")
                         return
                     }
-                    DispatchQueue.main.async {
-                        self.userWorkOuts.updateValue(workouts.workouts, forKey: document.documentID )
+                    querySnapshot.documents.forEach { document in
+                        guard let self = self,
+                              let workouts: WorkoutRoutine = try? document.data(as: WorkoutRoutine.self) else {
+                            return
+                        }
+                        DispatchQueue.main.async {
+                            self.userWorkOuts.updateValue(workouts.workouts, forKey: document.documentID )
+                        }
                     }
                 }
-            }
+        }
     }
     
 }

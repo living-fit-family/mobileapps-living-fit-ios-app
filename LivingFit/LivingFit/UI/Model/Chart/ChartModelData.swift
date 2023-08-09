@@ -11,9 +11,9 @@ import SwiftUI
 struct ChartModelData: Identifiable {
     var id = UUID()
     var color: Color
-    var slicePercent: CGFloat = 0.0
-    var macroPercent: CGFloat = 0.0
-    var value: CGFloat
+    var slicePercent: Double = 0.0
+    var macroPercent: Double = 0.0
+    var value: Double
     var title: String
 }
 

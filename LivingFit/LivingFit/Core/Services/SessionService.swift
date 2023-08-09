@@ -7,6 +7,7 @@
 
 import Foundation
 import FirebaseAuth
+import FirebaseFunctions
 import FirebaseFirestore
 import StreamChat
 import StreamChatSwiftUI
@@ -15,7 +16,7 @@ struct UserSessionDetails {
     let id: String
     let firstName: String
     let lastName: String
-    var photoURL: String
+    let photoUrl: String? 
 }
 
 enum SessionState {
@@ -35,65 +36,12 @@ final class SessionServiceImpl: ObservableObject, SessionService {
     
     @Published var state: SessionState = .loggedOut
     @Published var user: UserSessionDetails?
+    @Published var macros: UserDetail?
     
     private var handler: AuthStateDidChangeListenerHandle?
     
     init() {
         setupFirebaseAuthHandler()
-    }
-    
-    func updatePhotoUrl(userId: String, image: UIImage, onComplete: @escaping () -> (Void)?, onFailure: @escaping (Error) -> (Void)?) {
-        let tempUrl = self.user?.photoURL
-        self.user?.photoURL = ""
-        
-        let storageRef = storage.reference()
-        
-        // Create a reference to 'images/mountains.jpg'
-        let userIdImagesRef = storageRef.child("\(userId)/profileImage.png")
-        
-        // Data in memory
-        let data = image.pngData()
-        
-        // Upload the file to the path "images/rivers.jpg"
-        if let data = data {
-            userIdImagesRef.putData(data, metadata: nil) { (metadata, error) in
-                guard let metadata = metadata else {
-                    // Uh-oh, an error occurred!
-                    if let error = error {
-                        self.user?.photoURL = tempUrl ?? ""
-                        onFailure(error)
-                    }
-                    return
-                }
-                // You can also access to download URL after upload.
-                userIdImagesRef.downloadURL { (url, error) in
-                    guard let downloadURL = url else {
-                        // Uh-oh, an error occurred!
-                        if let error = error {
-                            self.user?.photoURL = tempUrl ?? ""
-                            onFailure(error)
-                        }
-                        return
-                    }
-                    
-                    let changeRequest = Auth.auth().currentUser?.createProfileChangeRequest()
-                    changeRequest?.photoURL = downloadURL
-                    changeRequest?.commitChanges()
-                    
-                    Firestore.firestore()
-                        .collection("users").document(userId).updateData(["photoURL": downloadURL.absoluteString]) { err in
-                            if let err = err {
-                                print("Error writing document: \(err)")
-                                self.user?.photoURL = tempUrl ?? ""
-                                onFailure(err)
-                            } else {
-                                print("Document successfully written!")
-                                onComplete()
-                            }
-                        }
-                }
-            }
-        }
     }
     
     func signOut() {
@@ -133,32 +81,56 @@ private extension SessionServiceImpl {
                 
                 let photoUrl = data["photoURL"] as? String
                 
+                let gender = data["gender"] as? String
+                let birthDate = data["birthDate"] as? Timestamp
+                let height = data["height"] as? String
+                let weight = data["weight"] as? String
+                let goal = data["goal"] as? String
+                let totalCalories = data["totalCalories"] as? String
+                
+                var formattedDate: Int64 = 0
+                if let birthDate = birthDate {
+                    formattedDate = birthDate.seconds
+                }
+
                 DispatchQueue.main.async {
-                    self.user = UserSessionDetails(id: document.documentID, firstName: firstName, lastName: lastName, photoURL: photoUrl ?? "")
                     
-                    let token = try! Token(rawValue: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYkoyZVRVRk1QOVVaUmNiT0pZenJsb0JCaXVkMiJ9.tXQl-DHUDIeyudZTQh0uTETbOrnaTJ8njojAYKsqmJ8")
-                    
-//                    self.chatClient.connectUser(userInfo: <#T##UserInfo#>) { <#@escaping (Result<Token, Error>) -> Void#> in
-//                        <#code#>
-//                    }
-                    
-//                    TokenProvider
-
-                    // Call `connectUser` on our SDK to get started.
-                    self.chatClient.connectUser(
-                        userInfo: .init(id: uid,
-                                        name: firstName + " " + lastName,
-                                        imageURL: URL(string: photoUrl ?? "")),
-                        token: token
-                    ) { error in
-                        if let error = error {
-                            // Some very basic error handling only logging the error.
-                            log.error("connecting the user failed \(error)")
-                            return
+                    self.user = UserSessionDetails(id: document.documentID, firstName: firstName, lastName: lastName, photoUrl: photoUrl)
+                    self.macros = UserDetail(
+                        gender: Gender(rawValue: gender ?? Gender.female.rawValue)!,
+                        birthDate: Date(timeIntervalSince1970: Double(formattedDate)),
+                        height: height ?? "120",
+                        weight: weight ?? "54.4311",
+                        goal: Goal(rawValue: goal ?? Goal.lose.rawValue)!,
+                        totalCalories: totalCalories ?? "2000")
+                }
+                
+                lazy var functions = Functions.functions(region: "us-east1")
+                
+                functions.httpsCallable("ext-auth-chat-getStreamUserToken").call(["uid": uid]) { result, error in
+                    if let error = error as NSError? {
+                        if error.domain == FunctionsErrorDomain {
+                            let code = FunctionsErrorCode(rawValue: error.code)
+                            let message = error.localizedDescription
+                            let details = error.userInfo[FunctionsErrorDetailsKey]
                         }
-
+                    }
+                    if let data = result?.data as? String {
+                        self.chatClient.connectUser(
+                            userInfo: .init(id: uid,
+                                            name: firstName + " " + lastName,
+                                            imageURL: URL(string: photoUrl ?? "")),
+                            token: try! Token(rawValue: data)
+                        ) { error in
+                            if let error = error {
+                                // Some very basic error handling only logging the error.
+                                log.error("connecting the user failed \(error)")
+                                return
+                            }
+                        }
                     }
                 }
+                
             }
     }
 }

@@ -36,7 +36,7 @@ extension Video {
         sets: "4",
         reps: "10",
         rest: "1 minute",
-        imageLink: "https://ik.imagekit.io/z9gymi5p9/jump_rope.jpg?updatedAt=1689275393337",
+        imageLink: "https://ik.imagekit.io/z9gymi5p9/leg_press-min.jpg?updatedAt=1689981732525",
         videoLink: "https://livingfitfamily.imgix.net/legs/leg_extension.mp4"
     )
 }

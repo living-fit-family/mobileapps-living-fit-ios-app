@@ -47,8 +47,15 @@ struct MainView: View {
                 .tag(ContentViewTab.plan)
             NutritionView()
                 .tag(ContentViewTab.nutrition)
-            AccountView()
-                .tag(ContentViewTab.account)
+            ChatView()
+            .tag(ContentViewTab.account)
+            .badge(chatClient.currentUserController().unreadCount.messages)
+        }
+        .onAppear {
+            if #available(iOS 15.0, *) {
+                let appearance = UITabBarAppearance()
+                UITabBar.appearance().scrollEdgeAppearance = appearance
+            }
         }
         .tint(.colorPrimary)
         .environmentObject(appState)

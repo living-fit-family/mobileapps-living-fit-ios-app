@@ -11,7 +11,7 @@ struct QueryTag: View {
     var query: String
     var isSelected: Bool
     var body: some View {
-        Text(query.capitalized)
+        Text(query == "hiit" ? query.uppercased() : query.capitalized)
             .font(.caption)
             .bold()
             .foregroundColor(isSelected ? .black : .gray)

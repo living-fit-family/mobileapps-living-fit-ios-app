@@ -19,7 +19,7 @@ struct VideoView: View {
     
     func isAdded() -> Bool {
         let videos = addedExercises.filter {
-            $0.id == video.id
+            $0.name == video.name
         }
         
         if !videos.isEmpty { return true }
@@ -39,17 +39,15 @@ struct VideoView: View {
                     VStack(alignment: .leading, spacing: 16) {
                         if video.category == Query.cardio.rawValue {
                             Text("Duration: \(video.duration ?? "N/A")")
-                                .foregroundColor(Color(hex: "3A4750"))
-                            
                             Text("Rest: \(video.rest ?? "N/A")")
-                                .foregroundColor(Color(hex: "3A4750"))
+                        } else if video.category == Query.hiit.rawValue {
+                            Text("Included in HIIT Interval")
+                            Text("")
+                            Text("")
                         } else {
                             Text("Sets: \(video.sets ?? "N/A")")
-                                .foregroundColor(Color(hex: "3A4750"))
                             Text("Reps: \(video.reps ?? "N/A")")
-                                .foregroundColor(Color(hex: "3A4750"))
                             Text("Rest: \(video.rest ?? "N/A")")
-                                .foregroundColor(Color(hex: "3A4750"))
                         }
                     }
                 }
@@ -60,7 +58,7 @@ struct VideoView: View {
                 if (isAdded()) {
                     ButtonView(title: "Remove Exercise", background: .red) {
                         addedExercises = addedExercises.filter {
-                            $0.id != video.id
+                            $0.name != video.name
                         }
                         dismissAction()
                     }.padding()

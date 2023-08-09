@@ -8,8 +8,11 @@
 import SwiftUI
 
 struct DonutChart: View {
-    @State private var chartModelData = ChartModelData.sample
+    @State private var chartModelData: [ChartModelData] = []
     @State private var selectedSlice = -1
+    var totalCalories: String = ""
+    var weight: String = ""
+    
     var body: some View {
         HStack(spacing : 30) {
             ZStack {
@@ -17,11 +20,11 @@ struct DonutChart: View {
                     Circle()
                         .trim(from: index == 0 ? 0.0 : chartModelData[index-1].slicePercent, to: chartModelData[index].slicePercent)
                         .stroke(chartModelData[index].color, lineWidth: 30)
-                        .onTapGesture {
-                            selectedSlice = selectedSlice == index ? -1 : index
-                        }
-                        .scaleEffect(index == selectedSlice ? 1.1 : 1.0)
-                        .animation(.spring(), value: selectedSlice)
+//                        .onTapGesture {
+//                            selectedSlice = selectedSlice == index ? -1 : index
+//                        }
+//                        .scaleEffect(index == selectedSlice ? 1.1 : 1.0)
+//                        .animation(.spring(), value: selectedSlice)
                 }
                 if selectedSlice != -1 {
                     VStack {
@@ -34,12 +37,11 @@ struct DonutChart: View {
                     VStack {
                         Text("Total Calories")
                             .font(.headline)
-                        Text("1709 kcal")
+                        Text("\(totalCalories) kcal")
                             .font(.subheadline)
                     }
                 }
             }
-            .frame(width: 180, height: 230)
             
             VStack(alignment: .leading) {
                 ForEach(chartModelData) { datum in
@@ -56,20 +58,37 @@ struct DonutChart: View {
         .onAppear {
             setUpChartData()
         }
+        .onDisappear {
+            chartModelData = []
+        }
     }
+    
     private func setUpChartData() {
+        let weightInPounds = Measurement(value: Double(weight)!, unit: UnitMass.kilograms).converted(to: .pounds)
+        
+        let protein = Double(weightInPounds.value * 0.825)
+        let proteinData = ChartModelData(color: .red, value: protein, title: "Protein")
+        chartModelData.append(proteinData)
+        
+        let fat = (Double(totalCalories)! * 0.25 / 9)
+        let fatData = ChartModelData(color: .green, value: fat, title: "Fat")
+        chartModelData.append(fatData)
+        
+        let carbs = (Double(totalCalories)! - (fat * 9)  - (protein * 4)) / 4
+        let carbData = ChartModelData(color: .blue, value: carbs, title: "Carbs")
+        chartModelData.append(carbData)
+        
         let total: CGFloat = chartModelData.reduce(0.0) {$0 + $1.value}
+        
         for i in 0..<chartModelData.count {
             let percentage = (chartModelData[i].value / total)
             chartModelData[i].slicePercent = (i == 0 ? 0.0 : chartModelData[i - 1].slicePercent) + percentage
-            let calories = chartModelData[i].title == "Fat" ? chartModelData[i].value * 9 : chartModelData[i].value * 4
-            chartModelData[i].macroPercent = calories / 3250
         }
     }
 }
 
 struct DonutChart_Previews: PreviewProvider {
     static var previews: some View {
-        DonutChart()
+        DonutChart(totalCalories: "2000", weight: "120")
     }
 }

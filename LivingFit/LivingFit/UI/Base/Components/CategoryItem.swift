@@ -6,11 +6,12 @@
 //
 
 import SwiftUI
+import PopupView
 
 struct CategoryItem: View {
     @State private var selected: Bool = false
     @State var showSheet = false
-
+    
     var nutrition: Nutrition
     
     
@@ -23,13 +24,18 @@ struct CategoryItem: View {
                 .onTapGesture {
                     showSheet.toggle()
                 }
-                .sheet(isPresented: $showSheet) {
+                .popup(isPresented: $showSheet) {
                     nutrition.image
                         .resizable()
                         .scaledToFit()
                         .frame(maxWidth: .infinity)
-//                        .presentationDetents([.medium, .large])
-//                        .presentationDragIndicator(.automatic)
+                } customize: {
+                    $0
+                        .type(.floater())
+                        .position(.center)
+                        .animation(.spring())
+                        .closeOnTapOutside(true)
+                        .backgroundColor(.black.opacity(0.5))
                 }
         }
         .padding(.leading, 15)

@@ -11,4 +11,6 @@ import Foundation
 protocol SplitSessionRepository {
     func fetchCurrentSplit() -> AnyPublisher<Split, Error>
     func addUserWorkout(uid: String, day: String, workout: [Workout]) -> AnyPublisher<Void, Error>
+    func deleteUserWorkout(uid: String, day: String) -> AnyPublisher<Void, Error>
+
 }

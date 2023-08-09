@@ -9,17 +9,41 @@ import SwiftUI
 
 struct NutritionView: View {
     @EnvironmentObject var modelData: ModelData
+    @EnvironmentObject var sessionService: SessionServiceImpl
+    @EnvironmentObject var bannerService: BannerService
+    
+    @State private var isShowingPopover = false
     
     var body: some View {
         NavigationStack {
-            DonutChart()
-            List {
-                ForEach(modelData.categories.keys.sorted(), id: \.self) { key in
-                    CategoryRow(categoryName: key, items: modelData.categories[key]!)
+            VStack(alignment: .leading) {
+                HStack(alignment: .center) {
+                    Text("My Nutrition")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                    Image(systemName: "info.circle")
+                        .resizable()
+                        .scaledToFit()
+                        .font(.headline)
+                        .foregroundColor(.blue)
+                        .frame(width: 20, height: 20)
+                        .onTapGesture {
+                            bannerService.setBanner(bannerType: .info(message: "Adjust your profile to get personalized macro info", isPersistent: false))
+                        }
                 }
+                .padding()
+                VStack(alignment: .leading) {
+                    DonutChart(totalCalories: sessionService.macros?.totalCalories ?? "2000", weight: sessionService.macros?.weight ?? "120")
+                        .padding()
+                }
+                .padding(.horizontal)
+                List {
+                    ForEach(modelData.categories.keys.sorted(), id: \.self) { key in
+                        CategoryRow(categoryName: key, items: modelData.categories[key]!)
+                    }
+                }
+                .listStyle(PlainListStyle())
             }
-            .listStyle(PlainListStyle())
-            .navigationTitle("My Nutrition")
         }
         .tabItem {
             Label("Nutrition", systemImage: "chart.pie")
@@ -32,6 +56,8 @@ struct NutritionView_Previews: PreviewProvider {
         NavigationStack {
             NutritionView()
                 .environmentObject(ModelData())
+                .environmentObject(SessionServiceImpl())
+                .environmentObject(BannerService())
         }
     }
 }

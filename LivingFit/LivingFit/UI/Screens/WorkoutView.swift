@@ -9,45 +9,51 @@ import SwiftUI
 import Foundation
 import Kingfisher
 
-enum Selection: String, CaseIterable {
-    case edit
-    case delete
-}
-
 struct WorkoutView: View {
+    @Environment(\.presentationMode) var presentationMode
+    
     @EnvironmentObject var splitSessionService: SplitSessionServiceImpl
-    @State private var selection: Selection = .edit
-    var name: String = ""
-    var day: String = ""
+    @EnvironmentObject var sessionService: SessionServiceImpl
+    @EnvironmentObject var bannerService: BannerService
+    
+    @State var editMode: Bool = false
+    var split: Split.Segment? = nil
+    
+    @State private var selectedVideo: Video? = nil
     
     private enum CoordinateSpaces {
         case scrollView
     }
     
     func getWorkouts() -> [Workout] {
-        guard let workouts = splitSessionService.userWorkOuts[day] else { return [] }
+        guard let workouts = splitSessionService.userWorkOuts[split?.day ?? ""] else { return [] }
         return workouts
     }
     
-    var customLabel: some View {
-        HStack {
-            Image(systemName: "paperplane")
-            Text(String("selectedNumber"))
-            Spacer()
-            Text("⌵")
-                .offset(y: -4)
-        }
-        .foregroundColor(.white)
-        .font(.title)
-        .padding()
-        .frame(height: 32)
-        .background(Color.blue)
-        .cornerRadius(16)
+    func getAddedExercises() -> [Video] {
+        let workouts = getWorkouts().flatMap { $0.videos }
+        return workouts
+    }
+    
+    func handleDismiss() {
+        self.selectedVideo = nil
     }
     
     var body: some View {
         VStack {
             List {
+                if split?.day == "Tuesday" {
+                    Section {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Perform Each Exercise for 5 rounds")
+                                .font(.headline)
+                            Text("Work: 40 Seconds")
+                                .font(.subheadline)
+                            Text("Rest 20 Seconds")
+                                .font(.subheadline)
+                        }
+                    }
+                }
                 ForEach(getWorkouts()) { workout in
                     Section(header: Text(workout.name.capitalized).foregroundColor(.black).padding(.bottom, 4)) {
                         ForEach(workout.videos, id: \.self) { video in
@@ -70,6 +76,10 @@ struct WorkoutView: View {
                                         Text("\(video.duration ?? "")")
                                             .font(.subheadline)
                                             .foregroundColor(.gray)
+                                    } else if video.category == Query.hiit.rawValue {
+                                        Text("Included in HIIT Interval")
+                                            .font(.subheadline)
+                                            .foregroundColor(.gray)
                                     } else {
                                         Text("\(video.sets ?? "") x \(video.reps ?? "")")
                                             .font(.subheadline)
@@ -79,33 +89,49 @@ struct WorkoutView: View {
                                 .alignmentGuide(.listRowSeparatorLeading) { viewDimensions in
                                     return 0
                                 }
-                                
-                            }
+                                Spacer()
+                            }.contentShape(Rectangle())
+                                .onTapGesture {
+                                    self.selectedVideo = video
+                                }
                         }
                         .onMove(perform: workout.moveWorkout)
                     }
                 }
                 
             }
+            .sheet(item: self.$selectedVideo, onDismiss: handleDismiss) {
+                VideoView(addedExercises: .constant([]), video: $0, dismissAction: handleDismiss, showButton: false)
+            }
         }
-        .navigationTitle(name)
-        .navigationBarTitleDisplayMode(.large)
-        .listStyle(.inset)
-        .scrollContentBackground(.hidden)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Menu {
-                    Picker("Edit", selection: $selection) {
-                        ForEach(Selection.allCases, id: \.self) { selection in // 4
-                            Text(selection.rawValue.capitalized + " " + "workout")
-                                .foregroundColor(selection == .delete ? .red : .black)
+                    NavigationLink(destination:  NavigationLazyView(WorkoutEditView(split: split ?? nil, addedExercises: getAddedExercises()))) {
+                        Image(systemName: "square.and.pencil")
+                        Text("Edit")
+                    }
+                    Button(action: {
+                        if let user = sessionService.user, let day = split?.day {
+                            Task {
+                                await splitSessionService.deleteUserWorkout(uid: user.id, day: day)
+                                self.presentationMode.wrappedValue.dismiss()
+                            }
+                            bannerService.setBanner(bannerType: .success(message: "Your \(split?.name ?? "") workout has been deleted.", isPersistent: true))
+                        }
+                    }) {
+                        HStack {
+                            Image(systemName: "trash")
+                            Text("Delete")
                         }
                     }
                 } label: {
-                    Image(systemName: "slider.horizontal.3")
+                    Image(systemName: "ellipsis.circle")
                 }
             }
         }
+        .navigationTitle(split?.name ?? "")
+        .navigationBarTitleDisplayMode(.large)
     }
 }
 
@@ -113,8 +139,10 @@ struct WorkoutView: View {
 struct WorkoutView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
-            WorkoutView(name: "Glutes", day: "Friday")
+            WorkoutView()
                 .environmentObject(SplitSessionServiceImpl(splitSessionRepository: FirebaseSplitSessionRespositoryAdapter()))
+                .environmentObject(SplitSessionServiceImpl(splitSessionRepository: FirebaseSplitSessionRespositoryAdapter()))
+                .environmentObject(BannerService())
         }
     }
 }

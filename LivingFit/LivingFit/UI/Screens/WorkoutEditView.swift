@@ -14,13 +14,15 @@ struct Exercise {
 }
 
 struct WorkoutEditView: View {
+    @Environment(\.presentationMode) var presentationMode
+    
     @EnvironmentObject var bannerService: BannerService
     @EnvironmentObject var sessionService: SessionServiceImpl
     @EnvironmentObject var splitSesstionService: SplitSessionServiceImpl
     
     @StateObject private var service = VideoService(videoRepository: FirebaseVideoRespositoryAdapter())
     
-    @State private var addedExercises: [Video] = []
+    @State private var addedExercises: [Video]
     @State private var selectedVideo: Video? = nil
     @State private var selectedQuery: String
     @State private var showError: Bool = false
@@ -54,9 +56,10 @@ struct WorkoutEditView: View {
         return requiredExercises
     }
     
-    init(split: Split.Segment? = nil) {
+    init(split: Split.Segment? = nil, addedExercises: [Video] = []) {
         self.split = split
-        self.selectedQuery = split?.exercises[0].category ?? ""
+        self._selectedQuery = State(initialValue: split?.exercises[0].category ?? "")
+        self._addedExercises = State(initialValue: addedExercises)
     }
     
     func handleDismiss() {
@@ -102,6 +105,7 @@ struct WorkoutEditView: View {
             if let userId = sessionService.user?.id, let day = split?.day {
                 Task {
                     await splitSesstionService.addUserWorkout(uid: userId, day: day, categories: queries, workout: addedExercises)
+                    self.presentationMode.wrappedValue.dismiss()
                 }
                 bannerService.setBanner(bannerType: .success(message: "Your \(split?.name ?? "new") workout is ready.", isPersistent: true))
                 willMoveToNextScreen = true
@@ -124,7 +128,7 @@ struct WorkoutEditView: View {
     
     func isAdded(video: Video) -> Bool {
         let videos = addedExercises.filter {
-            $0.id == video.id
+            $0.name == video.name
         }
         if !videos.isEmpty {
             return true
@@ -150,24 +154,24 @@ struct WorkoutEditView: View {
                     }
                     
                 }
-                .padding(.horizontal)
-                .padding([.vertical], 5)
-                .background(.white)) {
-                    getRequiredExerciseText()
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .padding(.horizontal)
-                        .padding([.vertical], 5)
-                    LazyVGrid(columns: columns, spacing: 10) {
-                        ForEach(filter()) { video in
-                            let added = isAdded(video: video)
-                            VideoCard(video: video, isAdded: added)
-                                .onTapGesture {
-                                    self.selectedVideo = video
-                                }
+                    .padding(.horizontal)
+                    .padding([.vertical], 5)
+                    .background(.white)) {
+                        getRequiredExerciseText()
+                            .font(.title3)
+                            .fontWeight(.bold)
+                            .padding(.horizontal)
+                            .padding([.vertical], 5)
+                        LazyVGrid(columns: columns, spacing: 10) {
+                            ForEach(filter()) { video in
+                                let added = isAdded(video: video)
+                                VideoCard(video: video, isAdded: added)
+                                    .onTapGesture {
+                                        self.selectedVideo = video
+                                    }
+                            }
                         }
                     }
-                }
             }
             .sheet(item: self.$selectedVideo, onDismiss: handleDismiss) {
                 VideoView(addedExercises: $addedExercises, video: $0, dismissAction: handleDismiss, showButton: true)
@@ -185,22 +189,20 @@ struct WorkoutEditView: View {
                 )
             }
         }
-        .navigationTitle(split?.name ?? "Upper Body Volume")
+        .navigationTitle(split?.name ?? "")
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
                 Button(action: {
                     handleCreateWorkout()
                 }) {
-                    Text("Create")
+                    Text("Save")
                     Image(systemName: "square.and.pencil").foregroundColor(.colorPrimary)
-                }
-                .navigationDestination(isPresented: $willMoveToNextScreen) {
-                    WorkoutView(name: split?.name ?? "", day: split?.day ?? "")
                 }
                 
             }
-        }.tint(.colorPrimary)
+        }
+        .tint(.colorPrimary)
     }
 }
 
