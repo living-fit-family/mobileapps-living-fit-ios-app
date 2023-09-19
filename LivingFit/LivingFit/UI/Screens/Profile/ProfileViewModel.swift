@@ -39,12 +39,12 @@ enum ActivityFactor: Double {
 
 class ProfileViewModel: ObservableObject {
     @Published var id: String
-    @Published var firstName: String
-    @Published var lastName: String
+    @Published var username: String
     
     @Published var gender: Gender {
         didSet(newGender) {
             if (newGender != gender) {
+                commitIsNeeded = true
                 recalculateMacros()
             }
         }
@@ -52,6 +52,7 @@ class ProfileViewModel: ObservableObject {
     @Published var birthDate: Date {
         didSet(newBirthDate) {
             if newBirthDate != birthDate {
+                commitIsNeeded = true
                 recalculateMacros()
             }
         }
@@ -59,6 +60,7 @@ class ProfileViewModel: ObservableObject {
     @Published var height: String{
         didSet(newHeight) {
             if newHeight != height {
+                commitIsNeeded = true
                 recalculateMacros()
             }
         }
@@ -66,6 +68,7 @@ class ProfileViewModel: ObservableObject {
     @Published var weight: String{
         didSet(newWeight) {
             if newWeight != weight {
+                commitIsNeeded = true
                 recalculateMacros()
             }
         }
@@ -73,6 +76,7 @@ class ProfileViewModel: ObservableObject {
     @Published var goal: Goal{
         didSet(newGoal) {
             if newGoal != goal {
+                commitIsNeeded = true
                 recalculateMacros()
             }
         }
@@ -83,20 +87,22 @@ class ProfileViewModel: ObservableObject {
     
     private var repository = FirebaseUserRepository()
     
-    init(id: String = "", firstName: String = "", lastName: String = "", gender: Gender = .female, birthDate: Date = Date(), height: String = "157.48", weight: String = "54", goal: Goal = .maintain, dailyCalories: String = "2000") {
+    public var commitIsNeeded: Bool
+    
+    init(id: String = "", username: String = "", gender: Gender = .female, birthDate: Date = Date(), height: String = "157.48", weight: String = "54", goal: Goal = .maintain, dailyCalories: String = "2000") {
         self.id = id
-        self.firstName = firstName
-        self.lastName = lastName
+        self.username = username
         self.gender = gender
         self.birthDate = birthDate
         self.height = height
         self.weight = weight
         self.goal = goal
         self.dailyCalories = dailyCalories
+        self.commitIsNeeded = false
     }
     
-    func updateName(userId: String, firstName: String, lastName: String) {
-        repository.updateName(uid: id, firstName: firstName, lastName: lastName)
+    func updateUserName() {
+        repository.updateName(uid: self.id, username: self.username)
             .sink { res in
                 switch res {
                 case .failure(let err):
@@ -122,7 +128,7 @@ class ProfileViewModel: ObservableObject {
         // Upload the file to the path "images/rivers.jpg"
         if let data = data {
             userIdImagesRef.putData(data, metadata: nil) { (metadata, error) in
-                guard let metadata = metadata else {
+                guard metadata != nil else {
                     // Uh-oh, an error occurred!
                     if let error = error {
                         onFailure(error)
@@ -155,20 +161,24 @@ class ProfileViewModel: ObservableObject {
     }
 
     
-    private func commitMacroChanges() {
-        let detail = UserDetail(gender: gender, birthDate: birthDate, height: height, weight: weight, goal: goal, totalCalories: dailyCalories)
-        repository.updateMacroNutrientInfo(uid: id, userDetails: detail)
-            .sink { res in
-                switch res {
-                case .failure(let err):
-                    print("Failure")
-                    //                    self.state = .failure(err: err)
-                default: break
-                }
-            } receiveValue: { _ in
-                print("success")
-                //                self.state = .success
-            }.store(in: &subscriptions)
+    func commitMacroChanges() {
+        if (commitIsNeeded) {
+            let detail = UserDetail(gender: gender, birthDate: birthDate, height: height, weight: weight, goal: goal, totalCalories: dailyCalories)
+            repository.updateMacroNutrientInfo(uid: id, userDetails: detail)
+                .sink { res in
+                    switch res {
+                    case .failure(let err):
+                        print("Failure")
+//                        self.state = .failure(err: err)
+                    default: break
+                    }
+                } receiveValue: { _ in
+                    print("success")
+//                    self.state = .success
+                }.store(in: &subscriptions)
+        } else {
+            print("No updates made. Nothing to commit.")
+        }
     }
     
     private func recalculateMacros() {
@@ -185,8 +195,6 @@ class ProfileViewModel: ObservableObject {
             let tdee = TDEE(activityFactor: ActivityFactor.ModeratelyActive)
             dailyCalories = String(Int(round(tdee - (tdee * 0.20))))
         }
-        
-        commitMacroChanges()
     }
     
     private func calculateAge() -> Int {
@@ -212,7 +220,6 @@ class ProfileViewModel: ObservableObject {
     func mifflinCalculator() -> Double {
         let genderAdjustment = gender == .male ? 5.0 : -161.0
         let age = calculateAge()
-        print(genderAdjustment)
         return (10.0 * Double(weight)!) + (6.25 * Double(height)!) - (5.0 * Double(age)) + genderAdjustment
     }
 }

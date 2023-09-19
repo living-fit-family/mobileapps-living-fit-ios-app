@@ -41,6 +41,10 @@ struct ProfileView: View {
     
     @State private var isPresentingLogoutAction: Bool = false
     
+    @State private var tempUsername: String = ""
+    
+    let usernameTextLimit = 30
+    
     let dateFormatter: DateFormatter = {
         let df = DateFormatter()
         df.dateStyle = .medium
@@ -55,12 +59,10 @@ struct ProfileView: View {
     }
     
     private func injectUserVariables() async -> Void {
-        if let id = sessionService.user?.id,
-           let firstName = sessionService.user?.firstName,
-           let lastName = sessionService.user?.lastName {
-            vm.id = id
-            vm.firstName = firstName
-            vm.lastName = lastName
+        if let user = sessionService.user {
+            vm.id = user.id
+            vm.username = user.username ?? "Living Fit User"
+            tempUsername = user.username ?? "Living Fit User"
         }
         if let macros = sessionService.macros {
             vm.gender = macros.gender
@@ -69,8 +71,9 @@ struct ProfileView: View {
             vm.weight = macros.weight
             vm.goal = macros.goal
             vm.dailyCalories = macros.totalCalories
-            
             newBirthDate = macros.birthDate
+            // Do not commit to firebase on the initial appearance
+            vm.commitIsNeeded = false
         }
     }
     
@@ -79,7 +82,6 @@ struct ProfileView: View {
         dateFormatter.dateFormat = "LLLL"
         let month = dateFormatter.string(from: vm.birthDate)
         return ("\(month) \(vm.birthDate.get(.day)) \(vm.birthDate.get(.year))")
-        
     }
     
     var body: some View {
@@ -88,10 +90,6 @@ struct ProfileView: View {
                 Form {
                     Section {
                         VStack(alignment: .center) {
-                            Text("My Profile")
-                                .font(.title2)
-                                .fontWeight(.bold)
-                            Spacer()
                             ProfileImageView(showingOptions: $showingSourceOptions, imageUrl: URL(string: sessionService.user?.photoUrl ?? ""), enableEditMode: true)
                                 .overlay {
                                     if (showUploadingProgress) {
@@ -100,8 +98,7 @@ struct ProfileView: View {
                                 }
                             
                             HStack(alignment: .lastTextBaseline) {
-                                Text(vm.firstName )
-                                Text(vm.lastName)
+                                Text(vm.username )
                                 Image(systemName: "square.and.pencil")
                                     .foregroundColor(.green)
                                     .onTapGesture {
@@ -182,30 +179,31 @@ struct ProfileView: View {
                                 .font(.headline)
                                 .fontWeight(.semibold)
                         } label: {
-                            Text("Fitness Goal")
+                            Text("Weight Goal")
                                 .font(.headline)
                                 .fontWeight(.semibold)
                         }
                         .onTapGesture {
                             self.showFitnessGoalPicker.toggle()
                         }
-                        
                         Text("Sign Out")
-                        .foregroundColor(.red)
-                                                .onTapGesture {
-                                                    self.isPresentingLogoutAction.toggle()
-                                                }.alert(isPresented: $isPresentingLogoutAction) {
-                                                    Alert(title: Text("Sign out of your account?"),
-                                                          primaryButton: .destructive(Text("Sign Out")) {sessionService.signOut()},
-                                                          secondaryButton: .cancel()
-                                                    )
-                                                }
+                            .foregroundColor(.red)
+                            .onTapGesture {
+                                self.isPresentingLogoutAction.toggle()
+                            }.alert(isPresented: $isPresentingLogoutAction) {
+                                Alert(title: Text("Sign out of your account?"),
+                                      primaryButton: .destructive(Text("Sign Out")) {sessionService.signOut()},
+                                      secondaryButton: .cancel()
+                                )
+                            }
                     }
                     .listRowSeparator(.hidden)
                 }
+                .navigationBarTitle("My profile")
+                .navigationBarTitleDisplayMode(.inline)
+                .scrollContentBackground(.hidden)
                 .scrollDisabled(true)
                 .environment(\.defaultMinListRowHeight, 50)
-                .background(Color.white)
             }
             .onAppear {
                 Task {
@@ -219,6 +217,9 @@ struct ProfileView: View {
                     self.inches = String(Int(inches))
                     self.weight = String(Int(round(weight.value)))
                 }
+            }
+            .onDisappear {
+                vm.commitMacroChanges()
             }
             .confirmationDialog("Edit Profile Picture", isPresented: $showingSourceOptions, titleVisibility: .visible) {
                 Button("Choose from library") {
@@ -298,13 +299,21 @@ struct ProfileView: View {
                     .interactiveDismissDisabled()
                 }
             }
-            .alert("Enter your name", isPresented: $isPresentingEditName) {
-                TextField("First name", text: $vm.firstName)
-                TextField("Last name", text: $vm.lastName)
+            .alert("Enter a name", isPresented: $isPresentingEditName, actions: {
+                // actions
+                TextField("username", text: $tempUsername.max(30))
+                    .autocorrectionDisabled(true)
                 Button("Save", action: {
-//                    vm.c
+                    if tempUsername.count < 1 {
+                        // Do nothing
+                    } else {
+                        vm.username = tempUsername
+                        vm.updateUserName()
+                    }
                 })
-            }
+            }, message: {
+                Text("Maximum 30 characters")
+            })
             .popup(isPresented: .constant(showingUnitOfMeasureForm && measurement != .na)) {
                 UnitOfMeasureForm(feet: $feet, inches: $inches, weight: $weight, showingUnitOfMeasureForm: $showingUnitOfMeasureForm, measurement: measurement) {
                     vm.weight = String(vm.weightInKg(pounds: Double(weight)!))
@@ -321,6 +330,17 @@ struct ProfileView: View {
                     .backgroundColor(.black.opacity(0.5))
             }
         }
+    }
+}
+
+extension Binding where Value == String {
+    func max(_ limit: Int) -> Self {
+        if self.wrappedValue.count > limit {
+            DispatchQueue.main.async {
+                self.wrappedValue = String(self.wrappedValue.dropLast())
+            }
+        }
+        return self
     }
 }
 

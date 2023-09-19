@@ -7,7 +7,8 @@
 
 import SwiftUI
 import Kingfisher
-import StreamChatSwiftUI
+import PopupView
+import SendbirdUIKit
 
 enum Destination {
     case workout
@@ -15,10 +16,10 @@ enum Destination {
 }
 
 struct CurrentSplitListView: View {
-    @EnvironmentObject var appState: AppState
     @EnvironmentObject var sessionService: SessionServiceImpl
     @EnvironmentObject var splitSessionService: SplitSessionServiceImpl
     @State var showProfile = false
+    @State var showChat = false
     
     var date: Text {
         return Text(Date(), style: .date)
@@ -53,32 +54,27 @@ struct CurrentSplitListView: View {
                     Section {
                         ZStack {
                             VStack {
-                                HStack {
+                                HStack(spacing: 0) {
                                     VStack(alignment: .leading, spacing: 4) {
-                                        Text("Hello, \(sessionService.user?.firstName ?? "Friend")")
-                                            .font(.title3)
+                                        Text("Hello, \(sessionService.user?.username ?? "Friend")")
+                                            .font(.headline)
                                             .foregroundColor(.gray)
                                             .fontWeight(.light)
                                         Text("Today is \(date)")
-                                            .font(.title3)
+                                            .font(.headline)
                                             .fontWeight(.semibold)
                                     }
                                     Spacer()
                                     ProfileImageView(showingOptions: .constant(false), imageUrl: URL(string: sessionService.user?.photoUrl ?? ""), enableEditMode: false)
                                 }
                             }
-                            NavigationLink(destination: ProfileView()) {
-                                EmptyView()
-                            }
-                            .fixedSize()
-                            .opacity(0)
                         }
                     }
                     
                     Section {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Split Focus")
-                                .font(.title2)
+                            Text("Current Split")
+                                .font(.headline)
                                 .fontWeight(.semibold)
                             HStack {
                                 Text("\(splitSessionService.split?.name ?? "")")
@@ -134,8 +130,35 @@ struct CurrentSplitListView: View {
                             .frame(height: 40)
                         
                     }
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button(action:{
+                            SendbirdUI.connect { (user, error) in
+                                // user object will be an instance of SBDUser
+                                guard let _ = user else {
+                                    print("ContentView: init: Sendbird connect: ERROR: \(String(describing: error)). Check applicationId")
+                                    return
+                                }
+                            }
+                            showChat = true
+                        }) {
+                            Image(systemName: "message")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(height: 20)
+                        }
+                        
+                    }
+                    
                 }
             }
+        }
+        .popup(isPresented: $showChat) {
+            ChannelListViewContainer()
+                .onAppear {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        showChat = false
+                    }
+                }
         }
         .tabItem {
             Label("Plan", systemImage: "calendar")
@@ -147,7 +170,6 @@ struct CurrentSplitListView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
             CurrentSplitListView()
-                .environmentObject(AppState())
                 .environmentObject(SessionServiceImpl())
                 .environmentObject(SplitSessionServiceImpl(splitSessionRepository: FirebaseSplitSessionRespositoryAdapter()))
         }

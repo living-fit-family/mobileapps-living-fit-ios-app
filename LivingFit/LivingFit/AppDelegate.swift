@@ -8,61 +8,38 @@
 import FirebaseAuth
 import FirebaseCore
 import FirebaseStorage
-import StreamChat
-import StreamChatSwiftUI
 import SwiftUI
+import SendbirdUIKit
+import SendbirdChatSDK
+import AVFoundation
 
-
-public let apiKeyString = "ga5xsb49d57n"
-public let applicationGroupIdentifier = "group.com.livingfitfamily.LivingFitApp"
-public let currentUserIdRegisteredForPush = "currentUserIdRegisteredForPush"
 public let storage = Storage.storage()
 
 class AppDelegate: NSObject, UIApplicationDelegate {
-    var streamChat: StreamChat?
-
-    var chatClient: ChatClient = {
-        var config = ChatClientConfig(apiKey: .init(apiKeyString))
-        config.isLocalStorageEnabled = true
-        config.applicationGroupIdentifier = applicationGroupIdentifier
-
-        let client = ChatClient(config: config)
-        return client
-    }()
-    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         // Use Firebase library to configure APIs
         FirebaseApp.configure()
-
-        let channelNamer: ChatChannelNamer = { channel, currentUserId in
-            "\(channel.name ?? "N/A")"
+        
+        // Configure and initialize Sendbird
+        SBUColorSet.primary300 = UIColor(Color(hex:"#55C856"))
+        // 1. Initialize Sendbird UIKit
+        SendbirdUI.initialize(applicationId: "C06DAD42-4096-430C-85F6-C722B76AD51F") { // This is the origin.
+            // Initialization of SendbirdUIKit has started.
+            // Show a loading indicator.
+        } migrationHandler: {
+            // DB migration has started.
+        } completionHandler: { error in
+            // If DB migration is successful, proceed to the next step.
+            // If DB migration fails, an error exists.
+            // Hide the loading indicator.
         }
-        let utils = Utils(channelNamer: channelNamer)
-
-        streamChat = StreamChat(chatClient: chatClient, utils: utils)
-
+        do{
+           try AVAudioSession.sharedInstance().setCategory(.ambient)
+           try AVAudioSession.sharedInstance().setActive(true, options: .notifyOthersOnDeactivation)
+        } catch {
+           NSLog(error.localizedDescription)
+        }
         return true;
-    }
-    
-    func application(
-        _ application: UIApplication,
-        didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
-    ) {
-        guard let currentUserId = chatClient.currentUserId else {
-            log.warning("cannot add the device without connecting as user first, did you call connectUser")
-            return
-        }
-
-        chatClient.currentUserController().addDevice(.apn(token: deviceToken)) { error in
-            if let error = error {
-                log.error("adding a device failed with an error \(error)")
-                return
-            }
-            UserDefaults(suiteName: applicationGroupIdentifier)?.set(
-                currentUserId,
-                forKey: currentUserIdRegisteredForPush
-            )
-        }
     }
     
     func application(_ application: UIApplication, shouldSaveSecureApplicationState coder: NSCoder) -> Bool {

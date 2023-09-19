@@ -7,21 +7,15 @@
 
 import SwiftUI
 
-struct LFTextFieldStyle: TextFieldStyle {
-    @FocusState private var isFocused: Bool
-    
+struct LFTextFieldStyle: TextFieldStyle {    
     func _body(configuration: TextField<Self._Label>) -> some View {
         configuration
             .frame(maxWidth: .infinity, maxHeight: 48)
             .padding(.leading, 16)
             .cornerRadius(5)
             .overlay(RoundedRectangle(cornerRadius: 5, style: .continuous)
-                .stroke(Color(uiColor: .systemGray6), lineWidth: 1))
+                .stroke(Color(uiColor: .systemGray5), lineWidth: 1))
             .autocorrectionDisabled(true)
             .textInputAutocapitalization(.never)
-            .focused($isFocused)
-            .onTapGesture {
-                isFocused = true;
-            }
     }
 }

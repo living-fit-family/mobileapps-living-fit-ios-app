@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import VideoPlayer
 
 struct Exercise {
     var category: String
@@ -123,6 +124,8 @@ struct WorkoutEditView: View {
                 videos = videos.filter{$0.subCategory == category.subCategory}
             }
         }
+        let urls = videos.map{ URL(string: $0.videoLink)! }
+        VideoPlayer.preload(urls: urls)
         return videos
     }
     
@@ -142,7 +145,6 @@ struct WorkoutEditView: View {
                 Section(header: VStack(alignment: .leading, spacing: 10) {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack {
-                            
                             ForEach(queries, id: \.self) { query in
                                 QueryTag(query: query, isSelected: self.selectedQuery == query)
                                     .onTapGesture {

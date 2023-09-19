@@ -29,6 +29,7 @@ struct VideoView: View {
     var body: some View {
         VStack {
             VideoPlayer(url: URL(string: video.videoLink)!, play: .constant(true), time: $time)
+                .contentMode(.scaleAspectFill)
                 .autoReplay(true)
                 .mute(true)
             HStack {

@@ -7,8 +7,6 @@
 
 import SwiftUI
 import FirebaseFunctions
-import StreamChat
-import StreamChatSwiftUI
 
 struct ViewCoordinator: View {
     @EnvironmentObject  var sessionService: SessionServiceImpl

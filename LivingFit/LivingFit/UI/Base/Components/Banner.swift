@@ -81,7 +81,7 @@ struct BannerView: View {
                 }
             } label: {
                 Image(systemName: "xmark")
-                    .foregroundColor(.black)
+                    .foregroundColor(.white)
                     .fontWeight(.light)
                     .padding(5)
             }

@@ -17,6 +17,7 @@ struct LivingFitApp: App {
     @StateObject var sessionService = SessionServiceImpl()
     @StateObject var splitSessionService = SplitSessionServiceImpl(splitSessionRepository: FirebaseSplitSessionRespositoryAdapter())
     @StateObject var modelData: ModelData = ModelData()
+    @StateObject var networkService = NetworkService()
     
     var body: some Scene {
         WindowGroup {
@@ -25,6 +26,7 @@ struct LivingFitApp: App {
                 .environmentObject(sessionService)
                 .environmentObject(splitSessionService)
                 .environmentObject(modelData)
+                .environmentObject(networkService)
         }
     }
 }

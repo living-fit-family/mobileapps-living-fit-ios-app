@@ -57,43 +57,10 @@ struct WorkoutView: View {
                 ForEach(getWorkouts()) { workout in
                     Section(header: Text(workout.name.capitalized).foregroundColor(.black).padding(.bottom, 4)) {
                         ForEach(workout.videos, id: \.self) { video in
-                            HStack(spacing: 8) {
-                                KFImage.url(URL(string: video.squareImageLink ?? ""))
-                                    .loadDiskFileSynchronously()
-                                    .cacheMemoryOnly()
-                                    .fade(duration: 0.25)
-                                    .onProgress { receivedSize, totalSize in  }
-                                    .onSuccess { result in  }
-                                    .onFailure { error in }
-                                    .resizable()
-                                    .aspectRatio(CGSize(width: 1, height: 1), contentMode: .fit)
-                                    .frame(height: 55)
-                                    .cornerRadius(4)
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(video.name)
-                                        .font(.subheadline)
-                                    if video.category == Query.cardio.rawValue {
-                                        Text("\(video.duration ?? "")")
-                                            .font(.subheadline)
-                                            .foregroundColor(.gray)
-                                    } else if video.category == Query.hiit.rawValue {
-                                        Text("Included in HIIT Interval")
-                                            .font(.subheadline)
-                                            .foregroundColor(.gray)
-                                    } else {
-                                        Text("\(video.sets ?? "") x \(video.reps ?? "")")
-                                            .font(.subheadline)
-                                            .foregroundColor(.gray)
-                                    }
-                                }
-                                .alignmentGuide(.listRowSeparatorLeading) { viewDimensions in
-                                    return 0
-                                }
-                                Spacer()
-                            }.contentShape(Rectangle())
-                                .onTapGesture {
-                                    self.selectedVideo = video
-                                }
+                                WorkoutCard(video: video)
+//                                .onTapGesture {
+//                                    self.selectedVideo = video
+//                                }
                         }
                         .onMove(perform: workout.moveWorkout)
                     }

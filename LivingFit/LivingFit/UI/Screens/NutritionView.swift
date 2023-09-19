@@ -11,8 +11,8 @@ struct NutritionView: View {
     @EnvironmentObject var modelData: ModelData
     @EnvironmentObject var sessionService: SessionServiceImpl
     @EnvironmentObject var bannerService: BannerService
-    
     @State private var isShowingPopover = false
+    @State private var isShowingChart = false
     
     var body: some View {
         NavigationStack {
@@ -33,8 +33,10 @@ struct NutritionView: View {
                 }
                 .padding()
                 VStack(alignment: .leading) {
-                    DonutChart(totalCalories: sessionService.macros?.totalCalories ?? "2000", weight: sessionService.macros?.weight ?? "120")
+                    
+                    DonutChart(chartModelData: sessionService.chartModelData, totalCalories: sessionService.macros?.totalCalories ?? "2000")
                         .padding()
+                    
                 }
                 .padding(.horizontal)
                 List {

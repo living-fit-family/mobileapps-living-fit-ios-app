@@ -7,6 +7,11 @@
 
 import SwiftUI
 
+enum LoginField: Hashable {
+    case email
+    case password
+}
+
 struct SignInView: View {
     @Environment(\.dismiss) var dismiss
     
