@@ -10,10 +10,22 @@ import Kingfisher
 
 
 struct WorkoutCard: View {
-    var video: Video    
+    var video: Video
     @Binding var showingUnitOfMeasureForm: Bool
     var weight: String
     var setVideoName: (String) -> ()
+    
+    func blackListed(video: Video) -> Bool {
+        return video.category == "abs" ||
+        video.category == "cardio" ||
+        video.category == "hiit" ||
+        video.category == "resistance band" ||
+        video.name == "Plate Walk Up" ||
+        video.name == "Ladder Push Up" ||
+        video.name == "Push Up" ||
+        video.name == "Release Push Up" ||
+        video.name == "Australian Pull Up"
+    }
     
     var body: some View {
         HStack(spacing: 8) {
@@ -49,21 +61,23 @@ struct WorkoutCard: View {
                 return 0
             }
             Spacer()
-            HStack(alignment: .lastTextBaseline) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(.ultraThickMaterial)
-                        .frame( width: 60, height: 30)
-                    Text(weight)
+            if !blackListed(video: video) {
+                HStack(alignment: .lastTextBaseline) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(.ultraThickMaterial)
+                            .frame( width: 60, height: 30)
+                        Text(weight)
+                            .font(.subheadline)
+                    }
+                    Text("lbs")
                         .font(.subheadline)
+                        .foregroundColor(.gray)
                 }
-                Text("lbs")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-            }
-            .onTapGesture {
-                setVideoName(video.name)
-                self.showingUnitOfMeasureForm.toggle()
+                .onTapGesture {
+                    setVideoName(video.name)
+                    self.showingUnitOfMeasureForm.toggle()
+                }
             }
         }
     }
