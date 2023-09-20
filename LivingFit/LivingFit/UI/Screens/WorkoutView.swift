@@ -8,6 +8,7 @@
 import SwiftUI
 import Foundation
 import Kingfisher
+import PopupView
 
 struct WorkoutView: View {
     @Environment(\.presentationMode) var presentationMode
@@ -16,10 +17,24 @@ struct WorkoutView: View {
     @EnvironmentObject var sessionService: SessionServiceImpl
     @EnvironmentObject var bannerService: BannerService
     
+    @State private var weight = "0"
+    @State private var videoName = ""
+    @State private var showingUnitOfMeasureForm = false
+    
     @State var editMode: Bool = false
     var split: Split.Segment? = nil
     
     @State private var selectedVideo: Video? = nil
+    
+    var queries: [String] {
+        var queries: [String] = []
+        if let split = split {
+            split.exercises.forEach {
+                queries.append($0.category)
+            }
+        }
+        return queries
+    }
     
     private enum CoordinateSpaces {
         case scrollView
@@ -57,10 +72,12 @@ struct WorkoutView: View {
                 ForEach(getWorkouts()) { workout in
                     Section(header: Text(workout.name.capitalized).foregroundColor(.black).padding(.bottom, 4)) {
                         ForEach(workout.videos, id: \.self) { video in
-                                WorkoutCard(video: video)
-//                                .onTapGesture {
-//                                    self.selectedVideo = video
-//                                }
+                            WorkoutCard(video: video, showingUnitOfMeasureForm: $showingUnitOfMeasureForm, weight: video.weight ?? "0") { value in
+                                self.videoName = value
+                            }
+                                .onTapGesture {
+                                    self.selectedVideo = video
+                                }
                         }
                         .onMove(perform: workout.moveWorkout)
                     }
@@ -70,6 +87,33 @@ struct WorkoutView: View {
             .sheet(item: self.$selectedVideo, onDismiss: handleDismiss) {
                 VideoView(addedExercises: .constant([]), video: $0, dismissAction: handleDismiss, showButton: false)
             }
+        }
+        .popup(isPresented: $showingUnitOfMeasureForm) {
+            UnitOfMeasureForm(feet: .constant(""), inches: .constant(""), weight: $weight, showingUnitOfMeasureForm: $showingUnitOfMeasureForm, measurement: .weight) {
+                let index = getAddedExercises().firstIndex(where: { $0.name == videoName })
+                var workouts = getAddedExercises()
+                
+                if let index = index {
+                    var newExercise = workouts[index]
+                    newExercise.weight = weight
+                    workouts[index] = newExercise
+                }
+                
+                if let user = sessionService.user, let day = split?.day {
+                    Task {
+                        await splitSessionService.addUserWorkout(uid: user.id, day: day, categories: queries, workout: workouts)
+                    }
+                }
+            }
+        } customize: {
+            $0
+                .type(.floater())
+                .position(.center)
+                .animation(.spring())
+                .closeOnTapOutside(false)
+                .closeOnTap(false)
+                .dragToDismiss(false)
+                .backgroundColor(.black.opacity(0.5))
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {

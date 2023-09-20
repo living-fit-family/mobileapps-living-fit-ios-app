@@ -12,6 +12,7 @@ struct ViewCoordinator: View {
     @EnvironmentObject  var sessionService: SessionServiceImpl
     @EnvironmentObject var bannerService: BannerService
     @State private var isActive: Bool = false
+    
     var body: some View {
         ZStack {
             if isActive {
@@ -23,6 +24,14 @@ struct ViewCoordinator: View {
                     }
                 case .loggedOut:
                     ContentView()
+                case .billingError:
+                    let error = NSError(domain:"", code:401, userInfo:[ NSLocalizedDescriptionKey: "There is a problem with your Living Fit subscription."]) as Error
+                    ErrorView(errorWrapper:
+                                ErrorWrapper(error: error,
+                                             guidance: "Please update your billing information.",
+                                             isLink: true,
+                                             linkText: "Update Account",
+                                             url: "https://www.livingfitfamily.com/login"))
                 }
             } else {
                 SplashScreen(isActive: $isActive)

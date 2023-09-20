@@ -22,6 +22,7 @@ struct Video: Codable, Identifiable, Hashable {
     var imageLink: String
     var squareImageLink: String?
     var videoLink: String
+    var weight: String?
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)

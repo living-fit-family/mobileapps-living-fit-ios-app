@@ -8,16 +8,12 @@
 import SwiftUI
 import Kingfisher
 
-enum Flavor: String, CaseIterable, Identifiable {
-    case chocolate, vanilla, strawberry
-    var id: Self { self }
-}
 
 struct WorkoutCard: View {
-    var video: Video
-    @State private var selectedFlavor: Flavor = .chocolate
-    @State private var showWeightPicker: Bool = false
-    @State private var weightValue = "0"
+    var video: Video    
+    @Binding var showingUnitOfMeasureForm: Bool
+    var weight: String
+    var setVideoName: (String) -> ()
     
     var body: some View {
         HStack(spacing: 8) {
@@ -53,56 +49,30 @@ struct WorkoutCard: View {
                 return 0
             }
             Spacer()
-            HStack {
+            HStack(alignment: .lastTextBaseline) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 10)
                         .fill(.ultraThickMaterial)
-//                    Picker("lbs", selection: $selectedFlavor) {
-//                        ForEach(Array(stride(from: 5, to: 105, by: 5)), id: \.self) { index in
-//                            // ...
-//                            Text(index.description)
-//                        }
-//                    }
-                    TextFieldView(input: $weightValue, placeholder: "20", keyboardType: .decimalPad, isSecure: false)
+                        .frame( width: 60, height: 30)
+                    Text(weight)
+                        .font(.subheadline)
                 }
-                .frame( width: 120, height: 35)
-                Image(systemName: "play.fill")
-                    .foregroundColor(.white)
-                    .font(.caption)
-                    .padding()
-                    .background(.green)
-                    .cornerRadius(50)
+                Text("lbs")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
             }
-            Spacer()
-            
+            .onTapGesture {
+                setVideoName(video.name)
+                self.showingUnitOfMeasureForm.toggle()
+            }
         }
-        .contentShape(Rectangle())
-//        .sheet(isPresented: $showWeightPicker) {
-//            VStack {
-//                HStack {
-//                    Button(action: {
-//                        self.showWeightPicker.toggle()
-//                    }) {
-//                        Text("CANCEL")
-//                    }
-//                    Spacer()
-//                    Button(action: {
-////                        vm.goal = self.newGoal
-//                        self.showWeightPicker.toggle()
-//                    }) {
-//                        Text("SET")
-//                    }
-//                }.padding([.top, .horizontal])
-//
-//                .presentationDetents([.fraction(0.30)])
-//                .interactiveDismissDisabled()
-//            }
-//        }
     }
 }
 
 struct WorkoutCard_Previews: PreviewProvider {
     static var previews: some View {
-        WorkoutCard(video: Video.sampleVideo)
+        WorkoutCard(video: Video.sampleVideo, showingUnitOfMeasureForm: .constant(false), weight: "25") { _ in
+            
+        }
     }
 }

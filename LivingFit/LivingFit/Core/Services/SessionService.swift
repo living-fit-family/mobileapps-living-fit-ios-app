@@ -21,6 +21,7 @@ struct UserSessionDetails {
 enum SessionState {
     case loggedIn
     case loggedOut
+    case billingError
 }
 
 protocol SessionService {
@@ -54,8 +55,28 @@ private extension SessionServiceImpl {
             self.state = user == nil ?  .loggedOut : .loggedIn
             if let uid = user?.uid {
                 self.handleRefresh(with: uid)
+                self.monitorAccountStatus(uid: uid)
             }
         }
+    }
+    
+    func monitorAccountStatus(uid: String) {
+        Firestore.firestore()
+            .collection("users").document(uid)
+            .collection("subscriptions").whereField("status", in: ["trialing", "active"])
+            .addSnapshotListener { querySnapshot, error in
+                guard let documents = querySnapshot?.documents else {
+                    print("Error fetching documents: \(error!)")
+                    return
+                }
+                let subscriptionStatus = documents.map { $0["status"]! }
+                print("Current status is: \(subscriptionStatus)")
+                if subscriptionStatus.isEmpty {
+                    self.state = .billingError
+                } else {
+                    self.state = Auth.auth().currentUser == nil ?  .loggedOut : .loggedIn
+                }
+            }
     }
     
     func handleRefresh(with uid: String) {
