@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SendbirdChatSDK
 import AVFAudio
 
 @main
@@ -18,6 +19,7 @@ struct LivingFitApp: App {
     @StateObject var splitSessionService = SplitSessionServiceImpl(splitSessionRepository: FirebaseSplitSessionRespositoryAdapter())
     @StateObject var modelData: ModelData = ModelData()
     @StateObject var networkService = NetworkService()
+    @ObservedObject var pushNotifications = PushNotifications()
     
     var body: some Scene {
         WindowGroup {
@@ -27,6 +29,18 @@ struct LivingFitApp: App {
                 .environmentObject(splitSessionService)
                 .environmentObject(modelData)
                 .environmentObject(networkService)
+        }
+        .onChange(of: sessionService.state) { newValue in
+            if newValue == .loggedIn {
+                if let id = sessionService.user?.id {
+                    SendbirdChat.connect(userId: id, completionHandler: { (user, error) in
+                        if error == nil {
+                            print("User with id \(id) successfully connected to Sendbird server.")
+                        }
+                    })
+                    pushNotifications.registerForPushNotifications()
+                }
+            }
         }
     }
 }

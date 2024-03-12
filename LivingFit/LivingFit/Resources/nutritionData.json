@@ -36,37 +36,37 @@
   },
   {
     "id": 9,
-    "category": "Reach Your Macros",
+    "category": "Reach Your Protein",
     "imageName": "high-protein-1"
   },
   {
     "id": 10,
-    "category": "Reach Your Macros",
+    "category": "Reach Your Protein",
     "imageName": "high-protein-2"
   },
   {
     "id": 11,
-    "category": "Reach Your Macros",
+    "category": "Reach Your Protein",
     "imageName": "high-protein-3"
   },
   {
     "id": 12,
-    "category": "Reach Your Macros",
+    "category": "Reach Your Protein",
     "imageName": "high-protein-4"
   },
   {
     "id": 13,
-    "category": "Reach Your Macros",
+    "category": "Reach Your Protein",
     "imageName": "protein-1"
   },
   {
     "id": 14,
-    "category": "Reach Your Macros",
+    "category": "Reach Your Protein",
     "imageName": "protein-2"
   },
   {
     "id": 15,
-    "category": "Reach Your Macros",
+    "category": "Reach Your Protein",
     "imageName": "healthy-fats"
   },
   {
@@ -76,7 +76,7 @@
   },
   {
     "id": 17,
-    "category": "Reach Your Macros",
+    "category": "Reach Your Protein",
     "imageName": "breakfast-protein-combos"
   },
   {
@@ -101,12 +101,12 @@
   },
   {
     "id": 22,
-    "category": "Reach Your Macros",
+    "category": "Reach Your Protein",
     "imageName": "high-protein-meals"
   },
   {
     "id": 23,
-    "category": "Reach Your Macros",
+    "category": "Reach Your Protein",
     "imageName": "macros-cheat-sheet"
   },
   {
@@ -181,37 +181,72 @@
   },
   {
     "id": 38,
-    "category": "Eat Towards Your Goals",
-    "imageName": "starter-pack-1"
-  },
-  {
-    "id": 39,
     "category": "Nutrition Made Simple",
     "imageName": "quick-and-easy-meal-prep"
   },
   {
-    "id": 40,
+    "id": 39,
     "category": "Eat Towards Your Goals",
     "imageName": "weight-loss-swaps-1"
   },
   {
-    "id": 41,
+    "id": 40,
     "category": "Eat Towards Your Goals",
     "imageName": "weight-loss-swaps-2"
   },
   {
-    "id": 42,
+    "id": 41,
     "category": "Eat Towards Your Goals",
     "imageName": "top-six-foods-for-building-muscle"
+  },
+  {
+    "id": 42,
+    "category": "Nutrition Made Simple",
+    "imageName": "snacks-to-keep-you-full"
+  },
+  {
+    "id": 43,
+    "category": "Nutrition Made Simple",
+    "imageName": "fat-loss-depends-on"
+  },
+  {
+    "id": 44,
+    "category": "Nutrition Made Simple",
+    "imageName": "best-source-of-carbs-for-muscle-building"
+  },
+  {
+    "id": 45,
+    "category": "Eat Towards Your Goals",
+    "imageName": "weight-loss-smoothie"
+  },
+  {
+    "id": 46,
+    "category": "Nutrition Made Simple",
+    "imageName": "how-to-eat-less"
+  },
+  {
+    "id": 47,
+    "category": "Nutrition Made Simple",
+    "imageName": "healthy-swaps"
+  },
+  {
+    "id": 48,
+    "category": "Nutrition Made Simple",
+    "imageName": "20-snacks-under-100-kcal"
+  },
+  {
+    "id": 49,
+    "category": "Nutrition Made Simple",
+    "imageName": "foods-that-debloat"
+  },
+  {
+    "id": 50,
+    "category": "Nutrition Made Simple",
+    "imageName": "what-to-eat-after-workout"
+  },
+  {
+    "id": 51,
+    "category": "Nutrition Made Simple",
+    "imageName": "healthy-foods-for-late-night-hunger"
   }
 ]
- 
- 
- 
- 
- 
- 
- 
- 
- 
-

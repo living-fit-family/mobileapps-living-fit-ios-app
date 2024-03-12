@@ -33,7 +33,7 @@ struct VideoCard: View {
             }
             if isLoaded {
                 Image(systemName: "play.fill")
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
                     .font(.title)
                     .padding()
                     .background(.ultraThinMaterial)
@@ -55,7 +55,7 @@ struct VideoCard: View {
                     HStack() {
                         Text(video.name)
                             .font(.caption).bold()
-                            .foregroundColor(.white)
+                            .foregroundStyle(.white)
                             .shadow(radius: 20)
                             .padding([.bottom, .leading])
                         Spacer()

@@ -100,7 +100,7 @@ struct ProfileView: View {
                             HStack(alignment: .lastTextBaseline) {
                                 Text(vm.username )
                                 Image(systemName: "square.and.pencil")
-                                    .foregroundColor(.green)
+                                    .foregroundStyle(.green)
                                     .onTapGesture {
                                         isPresentingEditName = true
                                     }
@@ -114,7 +114,7 @@ struct ProfileView: View {
                         
                         LabeledContent {
                             Text("\(feet) ft \(inches) in")
-                                .foregroundColor(Color(hex: "55C856"))
+                                .foregroundStyle(Color(hex: "55C856"))
                                 .font(.headline)
                                 .fontWeight(.semibold)
                         } label: {
@@ -130,7 +130,7 @@ struct ProfileView: View {
                         
                         LabeledContent {
                             Text(weight + " lb")
-                                .foregroundColor(Color(hex: "55C856"))
+                                .foregroundStyle(Color(hex: "55C856"))
                                 .font(.headline)
                                 .fontWeight(.semibold)
                         } label: {
@@ -162,7 +162,7 @@ struct ProfileView: View {
                         
                         LabeledContent {
                             Text("\(getFormattedDateString())")
-                                .foregroundColor(Color(hex: "55C856"))
+                                .foregroundStyle(Color(hex: "55C856"))
                                 .font(.headline)
                                 .fontWeight(.semibold)
                         } label: {
@@ -175,7 +175,7 @@ struct ProfileView: View {
                         
                         LabeledContent {
                             Text(vm.goal.rawValue.capitalized + " " + "weight")
-                                .foregroundColor(Color(hex: "55C856"))
+                                .foregroundStyle(Color(hex: "55C856"))
                                 .font(.headline)
                                 .fontWeight(.semibold)
                         } label: {
@@ -187,7 +187,7 @@ struct ProfileView: View {
                             self.showFitnessGoalPicker.toggle()
                         }
                         Text("Sign Out")
-                            .foregroundColor(.red)
+                            .foregroundStyle(.red)
                             .onTapGesture {
                                 self.isPresentingLogoutAction.toggle()
                             }.alert(isPresented: $isPresentingLogoutAction) {

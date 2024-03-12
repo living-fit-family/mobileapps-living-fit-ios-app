@@ -21,7 +21,7 @@ struct ProfileImageView: View {
                     .placeholder {
                         Image(systemName: "person.circle.fill")
                             .resizable()
-                            .foregroundColor(Color(UIColor.systemGray5))
+                            .foregroundStyle(Color(UIColor.systemGray5))
                     }
                     .loadDiskFileSynchronously()
                     .cacheMemoryOnly()
@@ -31,18 +31,20 @@ struct ProfileImageView: View {
                     .onFailure { error in }
                     .resizable()
                     .scaledToFill()
-                    .frame(width: 80, height: 80)
+                    .frame(width: 65, height: 65)
                     .clipShape(Circle())
+                    .shadow(radius: 3)
             } else {
                 Image(systemName: "person.circle.fill")
                     .resizable()
                     .scaledToFill()
-                    .frame(width: 80, height: 80)
-                    .foregroundColor(Color(UIColor.systemGray5))
+                    .frame(width: 65, height: 65)
+                    .foregroundStyle(Color(UIColor.systemGray5))
+                    .shadow(radius: 3)
             }
             if (enableEditMode) {
                 Image(systemName: "plus")
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
                     .frame(width: 25, height: 25)
                     .background(Color(hex: "55C856"))
                     .clipShape(Circle())

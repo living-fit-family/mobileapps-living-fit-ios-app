@@ -19,7 +19,7 @@ struct ResetPasswordView: View {
                 VStack(alignment: .leading, spacing: 5) {
                     Text("Please enter your email below to receive your password reset code.")
                         .font(.body)
-                        .foregroundColor(Color(hex: "3A4750"))
+                        .foregroundStyle(Color(hex: "3A4750"))
                 }
             }
             Spacer()
@@ -27,7 +27,7 @@ struct ResetPasswordView: View {
                 VStack(alignment: .leading) {
                     Text("Email")
                         .fontWeight(.semibold)
-                        .foregroundColor(Color(hex: "3A4750"))
+                        .foregroundStyle(Color(hex: "3A4750"))
                     TextFieldView(input: $vm.email, placeholder: "example@mail.com", keyboardType: .emailAddress, isSecure: false)
                 }
 

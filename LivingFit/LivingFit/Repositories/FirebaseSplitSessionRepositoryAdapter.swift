@@ -76,6 +76,10 @@ final class FirebaseSplitSessionRespositoryAdapter: SplitSessionRepository {
         .receive(on: RunLoop.main)
         .eraseToAnyPublisher()
     }
+    
+    func updateCompletedWorkouts(uid: String, completedWorkout: CompletedWorkout) -> AnyPublisher<Void, Error> {
+        
+    }
 }
 
 

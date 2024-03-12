@@ -1,0 +1,23 @@
+{
+  "images" : [
+    {
+      "filename" : "best-source-of-carbs-for-muscle-building.png",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "best-source-of-carbs-for-muscle-building@2x.png",
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "filename" : "best-source-of-carbs-for-muscle-building@3x.png",
+      "idiom" : "universal",
+      "scale" : "3x"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

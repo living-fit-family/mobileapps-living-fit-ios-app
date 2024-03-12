@@ -31,8 +31,11 @@ struct WorkoutEditView: View {
     @State private var errorDescription: String = ""
     @State private var willMoveToNextScreen: Bool = false
     
+    
     var split: Split.Segment? = nil
     var columns = [GridItem(.adaptive(minimum: 160), spacing: 20)]
+    
+    @Binding var path: NavigationPath
     
     var queries: [String] {
         var queries: [String] = []
@@ -57,10 +60,11 @@ struct WorkoutEditView: View {
         return requiredExercises
     }
     
-    init(split: Split.Segment? = nil, addedExercises: [Video] = []) {
+    init(split: Split.Segment? = nil, addedExercises: [Video] = [], path: Binding<NavigationPath>) {
         self.split = split
         self._selectedQuery = State(initialValue: split?.exercises[0].category ?? "")
         self._addedExercises = State(initialValue: addedExercises)
+        self._path = path
     }
     
     func handleDismiss() {
@@ -198,8 +202,13 @@ struct WorkoutEditView: View {
                 Button(action: {
                     handleCreateWorkout()
                 }) {
-                    Text("Save")
-                    Image(systemName: "square.and.pencil").foregroundColor(.colorPrimary)
+                    HStack(alignment: .bottom) {
+                        Text("Save")
+                        Image(systemName: "tray.and.arrow.down")
+                            .imageScale(.medium)
+                            .imageScale(.medium)
+                            .foregroundStyle(Color.colorPrimary)
+                    }
                 }
                 
             }
@@ -209,12 +218,14 @@ struct WorkoutEditView: View {
 }
 
 struct WorkoutEditView_Previews: PreviewProvider {
+    static let splitSessionService = SplitSessionServiceImpl(splitSessionRepository: FirebaseSplitSessionRespositoryAdapter())
+    
     static var previews: some View {
         NavigationStack {
-            WorkoutEditView()
+            WorkoutEditView(split: splitSessionService.split?.segments[0], path: .constant(NavigationPath()))
                 .environmentObject(BannerService())
                 .environmentObject(SessionServiceImpl())
-                .environmentObject(SplitSessionServiceImpl(splitSessionRepository: FirebaseSplitSessionRespositoryAdapter()))
+                .environmentObject(splitSessionService)
         }
     }
 }

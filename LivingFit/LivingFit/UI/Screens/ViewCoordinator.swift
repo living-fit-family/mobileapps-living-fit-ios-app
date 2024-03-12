@@ -7,18 +7,42 @@
 
 import SwiftUI
 import FirebaseFunctions
+import SendbirdChatSDK
+
 
 struct ViewCoordinator: View {
     @EnvironmentObject  var sessionService: SessionServiceImpl
     @EnvironmentObject var bannerService: BannerService
+    @ObservedObject var pushNotifications = PushNotifications()
+    
     @State private var isActive: Bool = false
+    
+    @ViewBuilder
+    func viewBuilder() -> some View {
+        if let channelId = sessionService.channelId {
+            ChannelViewContainer(channelId: channelId)
+                .onDisappear {
+                    DispatchQueue.main.async {
+                        sessionService.channelId = nil
+                    }
+                }
+        } else {
+            MainView()
+                .onAppear {
+                    DispatchQueue.main.async {
+                        sessionService.channelId = nil
+                        sessionService.updateUnreadChannelCount()
+                    }
+                }
+        }
+    }
     
     var body: some View {
         ZStack {
             if isActive {
                 switch sessionService.state {
                 case .loggedIn:
-                    MainView()
+                    viewBuilder()
                     if let type = bannerService.bannerType {
                         BannerView(banner: type)
                     }
@@ -31,7 +55,7 @@ struct ViewCoordinator: View {
                                              guidance: "Please update your billing information.",
                                              isLink: true,
                                              linkText: "Update Account",
-                                             url: "https://www.livingfitfamily.com/login"))
+                                             url: "https://billing.stripe.com/p/login/5kAeXO3HI3JxeNafYY"))
                 }
             } else {
                 SplashScreen(isActive: $isActive)

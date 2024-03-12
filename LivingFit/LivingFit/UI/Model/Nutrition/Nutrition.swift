@@ -15,7 +15,7 @@ struct Nutrition: Hashable, Codable, Identifiable {
     enum Category: String, CaseIterable, Codable {
         case generic = "Nutrition Made Simple"
         case goals = "Eat Towards Your Goals"
-        case macros = "Reach Your Macros"
+        case macros = "Reach Your Protein"
     }
 
 

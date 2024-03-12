@@ -9,6 +9,7 @@ import SwiftUI
 import Kingfisher
 import PopupView
 import SendbirdUIKit
+import SendbirdChatSDK
 
 enum Destination {
     case workout
@@ -18,11 +19,29 @@ enum Destination {
 struct CurrentSplitListView: View {
     @EnvironmentObject var sessionService: SessionServiceImpl
     @EnvironmentObject var splitSessionService: SplitSessionServiceImpl
-    @State var showProfile = false
-    @State var showChat = false
+    @Environment(\.presentationMode) private var presentationMode
     
+    @State private var unreadChannelCount = 0
+    @State private var isShowingChannelList = false
+    
+    @State private var path = NavigationPath()
+
     var date: Text {
         return Text(Date(), style: .date)
+    }
+    
+    var partOfDay: String {
+        let components = Calendar.current.dateComponents([.hour], from: Date())
+        let hour = components.hour ?? 0
+        var partOfDay = ""
+        if (hour >= 0 && hour < 12) {
+            partOfDay = "Morning"
+        } else if (hour >= 12 && hour < 17) {
+            partOfDay = "Afternoon"
+        } else if (hour >= 17 && hour != 0) {
+            partOfDay = "Evening"
+        }
+        return String(partOfDay)
     }
     
     func workoutExists(segment: Split.Segment) -> Bool {
@@ -47,121 +66,155 @@ struct CurrentSplitListView: View {
         }
     }
     
+    func totalQuantity(segment: Split.Segment) -> Int {
+        // Using reduce to calculate the total quantity
+        let sum = segment.exercises.reduce(0) { (result, currentStruct) -> Int in
+            return result + currentStruct.number
+        }
+        return sum
+    }
+    
+    func getCompletedWorkouts() -> Int {
+//        if let completedWorkouts = sessionService.user?.completedWorkouts {
+//            return completedWorkouts
+//        }
+        return 0
+    }
+    
+    
     var body: some View {
-        NavigationStack {
-            if let segments = splitSessionService.split?.segments {
-                List {
-                    Section {
-                        ZStack {
+        NavigationStack(path: $path) {
+            
+            VStack(alignment: .leading) {
+                HStack {
+                    ProfileImageView(showingOptions: .constant(false), imageUrl: URL(string: sessionService.user?.photoUrl ?? ""), enableEditMode: false)
+                    
+                    VStack(alignment: .leading) {
+                        Text("Good \(partOfDay)")
+                            .font(.headline)
+                            .fontWeight(.regular)
+                            .foregroundStyle(.gray)
+                        
+                        Text("\(sessionService.user?.username ?? "Living Fit User")")
+                            .font(.title)
+                            .fontWeight(.bold)
+                        
+                    }
+                    Spacer()
+                    Image(systemName: "message")
+                        .imageScale(.large  )
+                        .fontWeight(.bold)
+                        .foregroundStyle(.black)
+                        .overlay {
+                            NotificationCountView(value: $unreadChannelCount)
+                        }
+                        .onTapGesture {
+                            isShowingChannelList = true
+                        }
+                }
+                .padding([.horizontal, .bottom])
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color.black.gradient)
+                    .frame(height: 100)
+                    .overlay {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 10) {
+                                Text("Workout Progress")
+                                    .font(.headline)
+                                    .foregroundStyle(.white)
+                                Text("\(getCompletedWorkouts())/20 total workouts completed")
+                                    .font(.subheadline)
+                                    .foregroundStyle(Color(.systemGray3))
+                            }
+                            
+                            Spacer()
                             VStack {
-                                HStack(spacing: 0) {
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text("Hello, \(sessionService.user?.username ?? "Friend")")
-                                            .font(.headline)
-                                            .foregroundColor(.gray)
-                                            .fontWeight(.light)
-                                        Text("Today is \(date)")
-                                            .font(.headline)
-                                            .fontWeight(.semibold)
-                                    }
-                                    Spacer()
-                                    ProfileImageView(showingOptions: .constant(false), imageUrl: URL(string: sessionService.user?.photoUrl ?? ""), enableEditMode: false)
+                                ZStack {
+                                    Circle()
+                                        .stroke(lineWidth: 8)
+                                        .foregroundColor(Color(.systemGray3))
+                                        .frame(width: 65, height: 65)
+                                    Circle()
+                                        .trim(from: 0.0, to: 0.25)
+                                        .stroke(style: StrokeStyle(lineWidth: 8, lineCap: .round, lineJoin: .round))
+                                        .foregroundStyle(Color.colorPrimary)
+                                        .rotationEffect(.degrees(270.0))
+                                        .foregroundColor(.black)
+                                        .frame(width: 65, height: 65)
+                                    
+                                    Text("\(getCompletedWorkouts() * 100 / 20)%")
+                                        .foregroundStyle(.white)
+                                        .font(.subheadline)
+                                        .bold()
                                 }
                             }
                         }
+                        .padding()
                     }
-                    
-                    Section {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Current Split")
-                                .font(.headline)
-                                .fontWeight(.semibold)
-                            HStack {
-                                Text("\(splitSessionService.split?.name ?? "")")
-                                    .font(.subheadline)
-                                    .foregroundColor(.colorPrimary)
-                                    .fontWeight(.medium)
-                                Spacer()
-                                Text("Week \(splitSessionService.split?.startDate ?? "") / \(splitSessionService.split?.endDate ?? "")")
-                                    .font(.subheadline)
-                                    .fontWeight(.medium)
-                            }
-                        }
+                    .padding([.bottom, .horizontal])
+                Text("\(splitSessionService.split?.name ?? "") • Week \(splitSessionService.split?.startDate ?? "")/\(splitSessionService.split?.endDate ?? "" )")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .padding([.horizontal])
+                Divider()
+                    .padding(.leading)
+            }
+            if let segments = splitSessionService.split?.segments {
+                VStack {
+                    List {
                         ForEach(segments, id: \.self) { segment in
-                            NavigationLink(destination: getDestination(segment: segment) == .workout ? AnyView(NavigationLazyView(WorkoutView(split: segment))) :  AnyView(NavigationLazyView(WorkoutEditView(split: segment)))
-                            ){
-                                HStack(spacing: 10) {
+                            NavigationLink(value: segment) {
+                                HStack {
                                     KFImage.url(URL(string: segment.placeholder))
-                                        .loadDiskFileSynchronously()
-                                        .cacheMemoryOnly()
-                                        .fade(duration: 0.25)
-                                        .onProgress { receivedSize, totalSize in  }
-                                        .onSuccess { result in  }
-                                        .onFailure { error in }
                                         .resizable()
-                                        .aspectRatio(CGSize(width: 1, height: 1), contentMode: .fill)
-                                        .frame(width: 80, height: 80)
+                                        .frame(width: 110, height: 110)
                                         .cornerRadius(8)
                                     VStack(alignment: .leading, spacing: 8) {
                                         Text(segment.day)
+                                            .bold()
                                             .font(.headline)
+                                            .lineLimit(1)
                                         Text(segment.name)
                                             .font(.subheadline)
-                                            .foregroundColor(.gray)
+                                            .foregroundStyle(Color.gray)
+                                        HStack {
+                                            Text("\(totalQuantity(segment: segment)) Total Exercises")
+                                                .foregroundStyle(Color.colorPrimary)
+                                                .font(.system(size: 10))
+                                                .padding(4)
+                                                .overlay(
+                                                    RoundedRectangle(cornerRadius: 10)
+                                                        .stroke(Color.colorPrimary, lineWidth: 0.5)
+                                                )
+                                        }
                                     }
-                                    .padding(EdgeInsets(top: 0, leading: 10, bottom: 0, trailing: 10))
                                 }
                                 .alignmentGuide(.listRowSeparatorLeading) { viewDimensions in
                                     return 0
                                 }
-                                
                             }
-                            
                         }
                     }
+                    .scrollIndicators(.hidden)
+                    .listStyle(PlainListStyle())
                 }
-                .navigationTitle("Workout Plan")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Image("full-logo-transparent-white")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(height: 40)
-                        
-                    }
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action:{
-                            SendbirdUI.connect { (user, error) in
-                                // user object will be an instance of SBDUser
-                                guard let _ = user else {
-                                    print("ContentView: init: Sendbird connect: ERROR: \(String(describing: error)). Check applicationId")
-                                    return
-                                }
-                            }
-                            showChat = true
-                        }) {
-                            Image(systemName: "message")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(height: 20)
-                        }
-                        
-                    }
-                    
+                .navigationDestination(for: Split.Segment.self) { segment in
+                    getDestination(segment: segment) == .workout ?
+                    AnyView(NavigationLazyView(WorkoutView(split: segment, path: $path).toolbar(.hidden, for: .tabBar))) :
+                    AnyView(NavigationLazyView(WorkoutEditView(split: segment, path: $path).toolbar(.hidden, for: .tabBar)))
                 }
             }
         }
-        .popup(isPresented: $showChat) {
+        .popup(isPresented: $isShowingChannelList) {
             ChannelListViewContainer()
                 .onAppear {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        showChat = false
+                        isShowingChannelList = false
                     }
                 }
         }
         .tabItem {
-            Label("Plan", systemImage: "calendar")
+            Label("Home", systemImage: "house.fill")
         }
     }
 }
@@ -185,4 +238,3 @@ struct NavigationLazyView<Content: View>: View {
         build()
     }
 }
-

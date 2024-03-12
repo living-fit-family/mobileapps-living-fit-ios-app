@@ -106,7 +106,7 @@ class ProfileViewModel: ObservableObject {
             .sink { res in
                 switch res {
                 case .failure(let err):
-                    print("Failure")
+                    print("Error: \(err)")
                     //                    self.state = .failure(err: err)
                 default: break
                 }
@@ -168,7 +168,7 @@ class ProfileViewModel: ObservableObject {
                 .sink { res in
                     switch res {
                     case .failure(let err):
-                        print("Failure")
+                        print("Error: \(err)")
 //                        self.state = .failure(err: err)
                     default: break
                     }

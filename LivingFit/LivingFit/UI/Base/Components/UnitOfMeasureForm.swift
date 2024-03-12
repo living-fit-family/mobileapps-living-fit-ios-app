@@ -214,7 +214,7 @@ struct UnitOfMeasureForm: View {
                 Image(systemName: "xmark.circle.fill")
                     .resizable()
                     .frame(width: 20, height: 20)
-                    .foregroundColor(.gray)
+                    .foregroundStyle(.gray)
                     .padding()
             }
         }

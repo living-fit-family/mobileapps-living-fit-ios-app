@@ -16,6 +16,7 @@ struct UserSessionDetails {
     let id: String
     let username: String?
     let photoUrl: String?
+    let completedWorkouts: Int?
 }
 
 enum SessionState {
@@ -36,11 +37,17 @@ final class SessionServiceImpl: ObservableObject, SessionService {
     @Published var user: UserSessionDetails?
     @Published var macros: UserDetail?
     @Published var chartModelData: [ChartModelData] = []
+    @Published var channelId: String? = nil
+    @Published var unreadChannelCount = 0
+    private var pushNotifications = PushNotifications()
+
     
     private var handler: AuthStateDidChangeListenerHandle?
     
     init() {
+        pushNotifications = PushNotifications()
         setupFirebaseAuthHandler()
+        handlePushNotificationResponse()
     }
     
     func signOut() {
@@ -52,7 +59,6 @@ private extension SessionServiceImpl {
     func setupFirebaseAuthHandler() {
         handler = Auth.auth().addStateDidChangeListener{ [weak self] res, user in
             guard let self = self else { return }
-            self.state = user == nil ?  .loggedOut : .loggedIn
             if let uid = user?.uid {
                 self.handleRefresh(with: uid)
                 self.monitorAccountStatus(uid: uid)
@@ -97,6 +103,7 @@ private extension SessionServiceImpl {
                 
                 let username = data["username"] as? String
                 let photoUrl = data["photoURL"] as? String
+                let completedWorkouts = data["completedWorkouts"] as? Int
                 
                 let gender = data["gender"] as? String
                 let birthDate = data["birthDate"] as? Timestamp
@@ -112,7 +119,7 @@ private extension SessionServiceImpl {
                 
                 DispatchQueue.main.async {
                     
-                    self.user = UserSessionDetails(id: document.documentID, username: username, photoUrl: photoUrl)
+                    self.user = UserSessionDetails(id: document.documentID, username: username, photoUrl: photoUrl, completedWorkouts: completedWorkouts)
                     self.macros = UserDetail(
                         gender: Gender(rawValue: gender ?? Gender.female.rawValue)!,
                         birthDate: Date(timeIntervalSince1970: Double(formattedDate)),
@@ -142,21 +149,55 @@ private extension SessionServiceImpl {
                         self.chartModelData[i].slicePercent = (i == 0 ? 0.0 : self.chartModelData[i - 1].slicePercent) + percentage
                     }
                     
+                    self.state = .loggedIn
+                    
                     // Set the current user
                     SBUGlobals.currentUser = SBUUser(userId: uid, nickname: username, profileURL: photoUrl)
                     
-                    let params = UserUpdateParams()
-                    params.nickname = username
-                    params.profileImageURL = photoUrl
-                    SendbirdChat.updateCurrentUserInfo(params: params, progressHandler: nil) { error in
-                        guard error == nil else {
-                            // Handle error.
-                            return
-                        }
-                        // The current user's profile is successfully updated.
-                        // You could redraw the profile in a view in response to this operation.
-                    }
+//                    let params = UserUpdateParams()
+//                    params.nickname = username
+//                    params.profileImageURL = photoUrl
+//                    SendbirdChat.updateCurrentUserInfo(params: params, progressHandler: nil) { error in
+//                        guard error == nil else {
+//                            // Handle error.
+//                            return
+//                        }
+//                        // The current user's profile is successfully updated.
+//                        // You could redraw the profile in a view in response to this operation.
+//                    }
                 }
             }
+    }
+}
+
+extension SessionServiceImpl {
+    func handlePushNotificationResponse() {
+            pushNotifications.listenToNotificationsResponse { [weak self] response in
+                guard case UNNotificationDefaultActionIdentifier = response.actionIdentifier else {
+                    return
+                }
+//                let action = response.actionIdentifier
+                let request = response.notification.request
+                let userInfo = request.content.userInfo
+//                let alertMsg = (userInfo["aps"] as! NSDictionary)["alert"] as! NSDictionary
+                let payload = userInfo["sendbird"] as! NSDictionary
+                let channel = payload["channel"] as! NSDictionary
+                let channelUrl = channel["channel_url"] as! String
+                
+                self?.channelId = channelUrl
+                
+                let params = GroupChannelTotalUnreadMessageCountParams();
+                params.superChannelFilter = .all
+            }
+        }
+    
+    public func updateUnreadChannelCount() {
+        SendbirdChat.getTotalUnreadChannelCount { count, error in
+            guard error == nil else {
+                return // Handle error.
+            }
+            self.unreadChannelCount = Int(count)
+            UIApplication.shared.applicationIconBadgeNumber = Int(count)
+        }
     }
 }

@@ -1,0 +1,23 @@
+{
+  "images" : [
+    {
+      "filename" : "snacks-to-keep-you-full.png",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "snacks-to-keep-you-full@2x.png",
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "filename" : "snacks-to-keep-you-full@3x.png",
+      "idiom" : "universal",
+      "scale" : "3x"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

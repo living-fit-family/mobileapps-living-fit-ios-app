@@ -12,10 +12,11 @@ import SwiftUI
 import SendbirdUIKit
 import SendbirdChatSDK
 import AVFoundation
+import UserNotifications
 
 public let storage = Storage.storage()
 
-class AppDelegate: NSObject, UIApplicationDelegate {
+class AppDelegate: NSObject, UIApplicationDelegate, ObservableObject {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         // Use Firebase library to configure APIs
         FirebaseApp.configure()
@@ -34,12 +35,28 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             // Hide the loading indicator.
         }
         do{
-           try AVAudioSession.sharedInstance().setCategory(.ambient)
-           try AVAudioSession.sharedInstance().setActive(true, options: .notifyOthersOnDeactivation)
+            try AVAudioSession.sharedInstance().setCategory(.ambient)
+            try AVAudioSession.sharedInstance().setActive(true, options: .notifyOthersOnDeactivation)
         } catch {
-           NSLog(error.localizedDescription)
+            NSLog(error.localizedDescription)
         }
         return true;
+    }
+    
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        // Register a device token to Sendbird server.
+        let tokenParts = deviceToken.map { data in String(format: "%02.2hhx", data) }
+        let token = tokenParts.joined()
+        SendbirdChat.registerDevicePushToken(deviceToken, unique: false, completionHandler: { (status, error) in
+            if error == nil {
+                // A device token is successfully registered.
+                print("Sucessfuly registered device token: \(token)")
+            }
+        })
+    }
+    
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        print("error" + error.localizedDescription)
     }
     
     func application(_ application: UIApplication, shouldSaveSecureApplicationState coder: NSCoder) -> Bool {

@@ -30,11 +30,11 @@ struct ActivityCard: View {
                             .font(.headline)
                         Text(activity.subtitle)
                             .font(.caption)
-                            .foregroundColor(.gray)
+                            .foregroundStyle(.gray)
                     }
                     Spacer()
                     Image(systemName: activity.image)
-                        .foregroundColor(activity.color)
+                        .foregroundStyle(activity.color)
                     
                 }
                 

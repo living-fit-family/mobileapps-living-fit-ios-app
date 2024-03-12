@@ -15,7 +15,7 @@ struct SplashScreen: View {
         VStack {
             VStack {
                 Image("full-logo")
-                    .foregroundColor(.blue)
+                    .foregroundStyle(.blue)
             }
             .scaleEffect(scale)
             .onAppear{

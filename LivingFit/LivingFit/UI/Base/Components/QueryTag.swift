@@ -14,7 +14,7 @@ struct QueryTag: View {
         Text(query == "hiit" ? query.uppercased() : query.capitalized)
             .font(.caption)
             .bold()
-            .foregroundColor(isSelected ? .black : .gray)
+            .foregroundStyle(isSelected ? .black : .gray)
             .padding(10)
             .background(.thinMaterial)
             .cornerRadius(8)

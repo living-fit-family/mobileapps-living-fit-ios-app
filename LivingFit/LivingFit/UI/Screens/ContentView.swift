@@ -30,7 +30,7 @@ struct ContentView: View {
                     Text("Atlanta’s #1 In-Person Training Available Worldwide")
                         .font(.title)
                         .fontWeight(.medium)
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                         .multilineTextAlignment(.center)
                         .padding(.bottom)
                     Spacer()
@@ -39,7 +39,7 @@ struct ContentView: View {
                         Image(systemName: "chevron.right")
                     }
                     .font(.title3)
-                    .foregroundColor(.green)
+                    .foregroundStyle(.green)
                     .fullScreenCover(isPresented: $isPresented, content: {
                         SignInView()
                     })

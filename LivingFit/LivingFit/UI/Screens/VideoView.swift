@@ -8,14 +8,17 @@ import SwiftUI
 import Combine
 import VideoPlayer
 import CoreMedia
+import AVKit
 
 
 struct VideoView: View {
+    @State var player = AVPlayer()
     @State private var time: CMTime = .zero
     @Binding var addedExercises: [Video]
     var video: Video
     var dismissAction: () -> Void
     var showButton: Bool = false
+    
     
     func isAdded() -> Bool {
         let videos = addedExercises.filter {
@@ -28,16 +31,36 @@ struct VideoView: View {
     
     var body: some View {
         VStack {
-            VideoPlayer(url: URL(string: video.videoLink)!, play: .constant(true), time: $time)
-                .contentMode(.scaleAspectFill)
-                .autoReplay(true)
-                .mute(true)
+            ZStack {
+                
+                VideoPlayer(url: URL(string: video.videoLink)!, play: .constant(true), time: $time)
+                    .contentMode(.scaleAspectFill)
+                    .autoReplay(true)
+                    .mute(true)
+                VStack(alignment: .center) {
+                    Spacer()
+                    HStack {
+                        Text(video.name.replacingOccurrences(of: "\\n", with: "\n").uppercased())
+                            .font(.caption)
+                            .fontWeight(.bold)
+                            .padding(.vertical, 10)
+                            .padding(.horizontal, 24)
+                            .background(.thickMaterial)
+                            .clipShape(
+                                .rect(
+                                    topLeadingRadius: 8,
+                                    bottomLeadingRadius: 0,
+                                    bottomTrailingRadius: 0,
+                                    topTrailingRadius: 8
+                                )
+                            )
+                    }
+                    
+                }
+            }
             HStack {
-                VStack(alignment: .leading, spacing: 12) {
-                    Text(video.name.replacingOccurrences(of: "\\n", with: "\n"))
-                        .font(.title)
-                        .fontWeight(.semibold)
-                    VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .center) {
+                    VStack {
                         if video.category == Query.cardio.rawValue {
                             Text("Duration: \(video.duration ?? "N/A")")
                             Text("Rest: \(video.rest ?? "N/A")")
@@ -46,9 +69,44 @@ struct VideoView: View {
                             Text("")
                             Text("")
                         } else {
-                            Text("Sets: \(video.sets ?? "N/A")")
-                            Text("Reps: \(video.reps ?? "N/A")")
-                            Text("Rest: \(video.rest ?? "N/A")")
+                            HStack {
+                                Spacer()
+                                VStack {
+                                    Text("SETS")
+                                        .font(.caption2)
+                                        .fontWeight(.semibold)
+                                    Text("\(video.sets ?? "N/A")")
+                                        .font(.largeTitle)
+                                        .fontWeight(.semibold)
+                                }
+                                Spacer()
+                                Divider()
+                                    .frame(height: 50)
+                                Spacer()
+                                VStack {
+                                    Text("REPS")
+                                        .font(.caption2)
+                                        .fontWeight(.semibold)
+                                    Text("\(video.reps ?? "N/A")")
+                                        .font(.largeTitle)
+                                        .fontWeight(.semibold)
+                                    
+                                }
+                                Spacer()
+                                Divider()
+                                    .frame(height: 50)
+                                Spacer()
+                                VStack {
+                                    Text("REST")
+                                        .font(.caption2)
+                                        .fontWeight(.semibold)
+                                    Text("\(video.rest ?? "N/A") sec")
+                                        .font(.largeTitle)
+                                        .fontWeight(.semibold)
+                                    
+                                }
+                                Spacer()
+                            }.padding(.vertical)
                         }
                     }
                 }

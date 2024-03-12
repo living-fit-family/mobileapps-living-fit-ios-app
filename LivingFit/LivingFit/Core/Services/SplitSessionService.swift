@@ -54,6 +54,10 @@ final class SplitSessionServiceImpl: ObservableObject, SplitSessionService {
             }.store(in: &subscriptions)
     }
     
+    func addUserWorkout(user: UserDetail, day: String, categories: [String], workout: [Video], status: [String:Bool] = [:]) {
+        
+    }
+    
     func addUserWorkout(uid: String, day: String, categories: [String], workout: [Video]) async {
         var workouts: [Workout] = [];
         categories.forEach { category in
@@ -93,7 +97,7 @@ final class SplitSessionServiceImpl: ObservableObject, SplitSessionService {
             docRef
                 .addSnapshotListener { [weak self] querySnapshot, error in
                     guard let querySnapshot = querySnapshot else {
-                        //                    print("Error retreiving collection: \(error)")
+//                                            print("Error retreiving collection: \(error)")
                         return
                     }
                     querySnapshot.documents.forEach { document in

@@ -35,13 +35,13 @@ struct SignInView: View {
                 VStack(alignment: .leading) {
                     Text("Email")
                         .fontWeight(.semibold)
-                        .foregroundColor(Color(hex: "3A4750"))
+                        .foregroundStyle(Color(hex: "3A4750"))
                     TextFieldView(input: $email, placeholder: "example@mail.com", keyboardType: .emailAddress, isSecure: false)
                 }
                 VStack(alignment: .leading) {
                     Text("Password")
                         .fontWeight(.semibold)
-                        .foregroundColor(Color(hex: "3A4750"))
+                        .foregroundStyle(Color(hex: "3A4750"))
                     HStack {
                         if !showPassword {
                             TextFieldView(input: $password, placeholder: "Password", keyboardType: .default, isSecure: true)
@@ -65,7 +65,7 @@ struct SignInView: View {
                     NavigationLink(destination: ResetPasswordView()) {
                         Text("Forgot Password?")
                             .fontWeight(.semibold)
-                            .foregroundColor(.black)
+                            .foregroundStyle(.black)
                     }
                 }
                 VStack(alignment: .center, spacing: 16) {
@@ -82,7 +82,7 @@ struct SignInView: View {
                             }) {
                                 Text("Terms of Service (EULA)")
                                     .font(.caption)
-                                    .foregroundColor(Color(hex: "#55C856"))
+                                    .foregroundStyle(Color(hex: "#55C856"))
                                     .underline()
                             }
                             .sheet(isPresented: $showTermsOfService, content: {
@@ -99,7 +99,7 @@ struct SignInView: View {
                             }) {
                                 Text("Privacy Policy.")
                                     .font(.caption)
-                                    .foregroundColor(Color(hex: "#55C856"))
+                                    .foregroundStyle(Color(hex: "#55C856"))
                                     .underline()
                             }
                             .sheet(isPresented: $showPrivacyPolicy, content: {
@@ -119,7 +119,7 @@ struct SignInView: View {
                         dismiss()
                     }) {
                         Image(systemName: "multiply")
-                            .foregroundColor(.black)
+                            .foregroundStyle(.black)
                     }
                 }
             }

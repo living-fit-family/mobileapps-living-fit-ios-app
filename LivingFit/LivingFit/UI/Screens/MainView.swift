@@ -14,10 +14,12 @@ struct MainView: View {
     @EnvironmentObject var sessionService: SessionServiceImpl
     @EnvironmentObject var ModelData: ModelData
     @EnvironmentObject var networkService: NetworkService
+    @EnvironmentObject var splitSessionService: SplitSessionServiceImpl
     
     @State private var plan = UUID()
     @State private var nutrition = UUID()
     @State private var profile = UUID()
+    @State private var chat = UUID()
     
     @State private var tabSelection = 1
     @State private var tappedTwice = false
@@ -67,7 +69,7 @@ struct MainView: View {
             "Network connection is offline.",
             isPresented: $showNetworkAlert
         ){}
-        .tint(Color.colorPrimary)
+            .tint(Color.colorPrimary)
     }
 }
 

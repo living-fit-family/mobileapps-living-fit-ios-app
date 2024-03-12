@@ -58,18 +58,18 @@ struct BannerView: View {
             Image(systemName: banner.imageName)
                 .font(.system(size: 20))
                 .fontWeight(.light)
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
                 .padding(5)
             VStack(alignment: .leading, spacing: 5) {
                 Text(banner.message)
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
                     .fontWeight(.light)
                     .font(banner.message.count > 25 ? .caption : .footnote)
                     .multilineTextAlignment(.leading)
 //                    .lineLimit(showAllText ? nil : 2)
                 (banner.message.count > 100 && banner.isPersistent) ?
                 Image(systemName: self.showAllText ? "chevron.compact.up" : "chevron.compact.down")
-                    .foregroundColor(Color.white.opacity(0.6))
+                    .foregroundStyle(Color.white.opacity(0.6))
                     .fontWeight(.light)
                 : nil
             }
@@ -81,7 +81,7 @@ struct BannerView: View {
                 }
             } label: {
                 Image(systemName: "xmark")
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
                     .fontWeight(.light)
                     .padding(5)
             }
@@ -89,7 +89,7 @@ struct BannerView: View {
             : nil
         }
         .frame(maxWidth: .infinity)
-        .foregroundColor(.white)
+        .foregroundStyle(.white)
         .padding(8)
         .padding(.trailing, 2)
         .background(banner.backgroundColor)

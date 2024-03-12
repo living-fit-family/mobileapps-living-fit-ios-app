@@ -25,7 +25,7 @@ struct NutritionView: View {
                         .resizable()
                         .scaledToFit()
                         .font(.headline)
-                        .foregroundColor(.blue)
+                        .foregroundStyle(.blue)
                         .frame(width: 20, height: 20)
                         .onTapGesture {
                             bannerService.setBanner(bannerType: .info(message: "Adjust your profile to get personalized macro info", isPersistent: false))
