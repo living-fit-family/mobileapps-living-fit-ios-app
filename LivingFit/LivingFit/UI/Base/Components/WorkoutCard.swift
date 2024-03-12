@@ -67,38 +67,38 @@ struct WorkoutCard: View {
                             .font(.subheadline)
                             .fontWeight(.medium)
                     } else {
-                        //                        HStack {
-                        VStack {
-                            Text("Sets")
-                                .font(.subheadline)
-                                .fontWeight(.medium)
-                            Text(video.sets ?? "")
-                                .font(.footnote)
-                                .fontWeight(.medium)
+                        HStack {
+                            VStack {
+                                Text("Sets")
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+                                Text(video.sets ?? "")
+                                    .font(.footnote)
+                                    .fontWeight(.medium)
+                            }
+                            Divider()
+                                .frame(height: 16)
+                                .padding(.horizontal, 4)
+                            VStack {
+                                Text("Reps")
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+                                Text(video.reps ?? "")
+                                    .font(.footnote)
+                                    .fontWeight(.medium)
+                            }
+                            Divider()
+                                .frame(height: 16)
+                                .padding(.horizontal, 4)
+                            VStack {
+                                Text("Rest")
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+                                Text("\(video.rest ?? "") sec")
+                                    .font(.footnote)
+                                    .fontWeight(.medium)
+                            }
                         }
-                        Divider()
-                            .frame(height: 16)
-                            .padding(.horizontal, 4)
-                        VStack {
-                            Text("Reps")
-                                .font(.subheadline)
-                                .fontWeight(.medium)
-                            Text(video.reps ?? "")
-                                .font(.footnote)
-                                .fontWeight(.medium)
-                        }
-                        Divider()
-                            .frame(height: 16)
-                            .padding(.horizontal, 4)
-                        VStack {
-                            Text("Rest")
-                                .font(.subheadline)
-                                .fontWeight(.medium)
-                            Text("\(video.rest ?? "") sec")
-                                .font(.footnote)
-                                .fontWeight(.medium)
-                        }
-                        //                        }
                     }
                     Spacer()
                     Image("swap")

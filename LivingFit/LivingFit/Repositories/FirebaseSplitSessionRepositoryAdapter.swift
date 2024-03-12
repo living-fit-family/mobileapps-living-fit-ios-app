@@ -78,7 +78,22 @@ final class FirebaseSplitSessionRespositoryAdapter: SplitSessionRepository {
     }
     
     func updateCompletedWorkouts(uid: String, completedWorkout: CompletedWorkout) -> AnyPublisher<Void, Error> {
-        
+        Deferred {
+            Future { promise in
+                Firestore.firestore()
+                    .collection("users").document(uid)
+                    .collection("workouts")
+                    .document("day").delete() {error in
+                        if let err = error {
+                            promise(.failure(err))
+                        } else {
+                            promise(.success(()))
+                        }
+                    }
+            }
+        }
+        .receive(on: RunLoop.main)
+        .eraseToAnyPublisher()
     }
 }
 
