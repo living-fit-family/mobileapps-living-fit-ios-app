@@ -99,7 +99,7 @@ struct TabataExerciseView: View {
     @State private var isResetting = false
     
     @State private var isPressed = false
-
+    
     
     var videos: [Video]
     var day: String
@@ -235,138 +235,141 @@ struct TabataExerciseView: View {
                 }
                 .padding(.horizontal)
             }
-
-                HStack(alignment: .top) {
-                    VStack {
-                        Text("\(currentRound)/\(interval.rounds)")
-                            .font(.custom("Avenir", size: 26))
-                            .fontWeight(.bold)
-                        Text("Round")
-                            .font(.custom("Avenir", size: 13))
-                            .fontWeight(.semibold)
-                            .foregroundStyle(.gray)
-                    }
-                    ZStack {
-                        CircleTimerView(progress: CGFloat(elapsedTotalTime) / CGFloat((interval.work + interval.rest) * videos.count * interval.rounds), timeRemaining: elapsedTotalTime, isTimerRunning: $isResetting, text: .constant(""), showText: .constant(false),  animate: .constant(true), color: .constant(Color(hex: "#C855C8")))
-                            .frame(width: 200)
-                        CircleTimerView(progress: CGFloat(totalTime) / CGFloat(isWorkTime ? Double(interval.work) : Double(interval.rest)), timeRemaining: totalTime, isTimerRunning: $isResetting, text: .constant(""), showText: .constant(false), animate: .constant(true), color: .constant(isWorkTime ? Color.red : Color.colorPrimary))
-                            .frame(width: 225)
-                    }
-                    .overlay(alignment: .center) {
-                        
-                        if (isInitialCountDown) {
-                            CountdownView() {
-                                isFirstLoad.toggle()
-                                isInitialCountDown.toggle()
-                                isPlaying.toggle()
-                                startTimer()
-                            }
+            
+            HStack(alignment: .top) {
+                VStack {
+                    Text("\(currentRound)/\(interval.rounds)")
+                        .font(.custom("Avenir", size: 26))
+                        .fontWeight(.bold)
+                    Text("Round")
+                        .font(.custom("Avenir", size: 13))
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.gray)
+                }
+                ZStack {
+                    CircleTimerView(progress: CGFloat(elapsedTotalTime) / CGFloat((interval.work + interval.rest) * videos.count * interval.rounds), timeRemaining: elapsedTotalTime, isTimerRunning: $isResetting, text: .constant(""), showText: .constant(false),  animate: .constant(true), color: .constant(Color(hex: "#C855C8")))
+                        .frame(width: 200)
+                    CircleTimerView(progress: CGFloat(totalTime) / CGFloat(isWorkTime ? Double(interval.work) : Double(interval.rest)), timeRemaining: totalTime, isTimerRunning: $isResetting, text: .constant(""), showText: .constant(false), animate: .constant(true), color: .constant(isWorkTime ? Color.red : Color.colorPrimary))
+                        .frame(width: 225)
+                }
+                .overlay(alignment: .center) {
+                    
+                    if (isInitialCountDown) {
+                        CountdownView() {
+                            isFirstLoad.toggle()
+                            isInitialCountDown.toggle()
+                            isPlaying.toggle()
+                            startTimer()
                         }
-                        if !isInitialCountDown {
+                    }
+                    if !isInitialCountDown {
+                        VStack {
                             VStack {
-                                VStack {
-                                    Text(isWorkTime ? "Work" : "Rest")
-                                        .font(.custom("Avenir", size: 20.0))
-                                        .bold()
-                                        .italic()
-                                        .foregroundStyle(isWorkTime ? .red : Color.colorPrimary)
-                                    Text(totalTime.format(using: [.minute, .second]))
-                                        .font(.custom("Avenir", size: 56))
-                                        .fontWeight(.bold)
-                                        .foregroundStyle(isWorkTime ? .red : Color.colorPrimary)
-                                }
-                                .padding(.top, 16)
-                                Text("Total Time")
-                                    .font(.custom("Avenir", size: 13))
-                                    .fontWeight(.semibold)
-                                Text(elapsedTotalTime.format(using: [.minute, .second]))
-                                    .foregroundStyle(Color(hex: "#C855C8"))
+                                Text(isWorkTime ? "Work" : "Rest")
+                                    .font(.custom("Avenir", size: 20.0))
+                                    .bold()
+                                    .italic()
+                                    .foregroundStyle(isWorkTime ? .red : Color.colorPrimary)
+                                Text(totalTime.format(using: [.minute, .second]))
+                                    .font(.custom("Avenir", size: 56))
                                     .fontWeight(.bold)
+                                    .foregroundStyle(isWorkTime ? .red : Color.colorPrimary)
+                            }
+                            .padding(.top, 16)
+                            Text("Total Time")
+                                .font(.custom("Avenir", size: 13))
+                                .fontWeight(.semibold)
+                            Text(elapsedTotalTime.format(using: [.minute, .second]))
+                                .foregroundStyle(Color(hex: "#C855C8"))
+                                .fontWeight(.bold)
+                        }
+                    }
+                }
+                VStack {
+                    Text("\(currentSet)/\(Int(interval.rounds) * Int(videos.count))")
+                        .font(.custom("Avenir", size: 26))
+                        .fontWeight(.bold)
+                    Text("Set")
+                        .font(.custom("Avenir", size: 13))
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.gray)
+                }
+            }
+            .padding(.bottom)
+            HStack {
+                Rectangle()
+                    .fill(Color(.white))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 5)
+                            .stroke(!isTimerRunning && !isFirstLoad && !isResetting  ? Color.red : Color.colorPrimary, lineWidth: 2)
+                    }
+                    .overlay {
+                        HStack {
+                            Image(systemName: !isTimerRunning && !isFirstLoad && !isResetting ? "stop.fill" : "gobackward")
+                            Text(!isTimerRunning && !isFirstLoad && !isResetting ? "Stop" : "Reset")
+                                .font(.title3)
+                                .fontWeight(.semibold)
+                        }
+                        .foregroundStyle(!isTimerRunning && !isFirstLoad && !isResetting ? Color.red : Color.colorPrimary)
+                    }
+                    .onTapGesture {
+                        if !isTimerRunning && !isFirstLoad && !isResetting {
+                            path.removeLast(path.count)
+                        }
+                        
+                        if isTimerRunning && !isFirstLoad {
+                            isResetting = true
+                            resetTimer()
+                            if isPlaying {
+                                isPlaying.toggle()
                             }
                         }
                     }
-                    VStack {
-                        Text("\(currentSet)/\(Int(interval.rounds) * Int(videos.count))")
-                            .font(.custom("Avenir", size: 26))
-                            .fontWeight(.bold)
-                        Text("Set")
-                            .font(.custom("Avenir", size: 13))
-                            .fontWeight(.semibold)
-                            .foregroundStyle(.gray)
+                RoundedRectangle(cornerRadius: 5)
+                    .fill(Color.colorPrimary)
+                    .overlay {
+                        HStack {
+                            Image(systemName: isTimerRunning ? "pause.fill" : "play.fill")
+                            Text(isTimerRunning ? "Pause" : "Start")
+                                .font(.title3)
+                                .fontWeight(.semibold)
+                        }
+                        .foregroundStyle(Color(uiColor: .systemGray6))
                     }
-                }
-                .padding(.bottom)
-                HStack {
-                    Rectangle()
-                        .fill(Color(.white))
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 5)
-                                .stroke(!isTimerRunning && !isFirstLoad && !isResetting  ? Color.red : Color.colorPrimary, lineWidth: 2)
-                        }
-                        .overlay {
-                            HStack {
-                                Image(systemName: !isTimerRunning && !isFirstLoad && !isResetting ? "stop.fill" : "gobackward")
-                                Text(!isTimerRunning && !isFirstLoad && !isResetting ? "Stop" : "Reset")
-                                    .font(.title3)
-                                    .fontWeight(.semibold)
+                    .onTapGesture {
+                        if isFirstLoad && !isInitialCountDown {
+                            isInitialCountDown.toggle()
+                            totalTime = Double(interval.work)
+                            elapsedTotalTime = Double((interval.work + interval.rest) * videos.count * interval.rounds)
+                        } else if (isTimerRunning) {
+                            stopTimer()
+                            if (isWorkTime) {
+                                isPlaying.toggle()
                             }
-                            .foregroundStyle(!isTimerRunning && !isFirstLoad && !isResetting ? Color.red : Color.colorPrimary)
-                        }
-                        .onTapGesture {
-                            if !isTimerRunning && !isFirstLoad && !isResetting {
-                                path.removeLast(path.count)
-                            }
-                            
-                            if isTimerRunning && !isFirstLoad {
-                                isResetting = true
-                                resetTimer()
-                                if isPlaying {
-                                    isPlaying.toggle()
-                                }
+                        } else if (!isTimerRunning && !isFirstLoad) {
+                            startTimer()
+                            if (isWorkTime) {
+                                isPlaying.toggle()
                             }
                         }
-                    RoundedRectangle(cornerRadius: 5)
-                        .fill(Color.colorPrimary)
-                        .overlay {
-                            HStack {
-                                Image(systemName: isTimerRunning ? "pause.fill" : "play.fill")
-                                Text(isTimerRunning ? "Pause" : "Start")
-                                    .font(.title3)
-                                    .fontWeight(.semibold)
-                            }
-                            .foregroundStyle(Color(uiColor: .systemGray6))
-                        }
-                        .onTapGesture {
-                            if isFirstLoad && !isInitialCountDown {
-                                isInitialCountDown.toggle()
-                                totalTime = Double(interval.work)
-                                elapsedTotalTime = Double((interval.work + interval.rest) * videos.count * interval.rounds)
-                            } else if (isTimerRunning) {
-                                stopTimer()
-                                if (isWorkTime) {
-                                    isPlaying.toggle()
-                                }
-                            } else if (!isTimerRunning && !isFirstLoad) {
-                                startTimer()
-                                if (isWorkTime) {
-                                    isPlaying.toggle()
-                                }
-                            }
-                        }
-                }
-                .padding(.horizontal)
-                .frame(maxHeight: 50)
+                    }
+            }
+            .padding(.horizontal)
+            .frame(maxHeight: 50)
         }
         .fullScreenCover(isPresented: $showComplete) {
             WorkoutCompleteView() {
-                if let user = sessionService.user {
-                    let workouts = getAddedExercises()
-                    var status: [String: Bool] = [:]
-                    videos.forEach { video in
-                        status[video.category] = true
-                    }
-                    Task {
-                        await splitSessionService.addUserWorkout(uid: user.id, day: day, categories: queries, workout: workouts)
+                if let user = sessionService.user, let segments = splitSessionService.split?.segments {
+                    if let segment = segments.first(where: { $0.day == day}) {
+                        let totalExercises = segment.exercises.reduce(0) { (result, currentStruct) -> Int in
+                            return result + currentStruct.number
+                        }
+                        
+                        let completedWorkout = CompletedWorkout(day: day, categoriesCompleted: videos.count)
+                        
+                        Task {
+                            await splitSessionService.updateCompletedWorkouts(uid: user.id, completedWorkout: completedWorkout, totalExercises: totalExercises)
+                        }
                     }
                 }
                 path.removeLast(path.count)

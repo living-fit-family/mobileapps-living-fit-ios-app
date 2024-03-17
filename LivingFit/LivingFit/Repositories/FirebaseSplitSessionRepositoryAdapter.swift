@@ -77,17 +77,87 @@ final class FirebaseSplitSessionRespositoryAdapter: SplitSessionRepository {
         .eraseToAnyPublisher()
     }
     
-    func updateCompletedWorkouts(uid: String, completedWorkout: CompletedWorkout) -> AnyPublisher<Void, Error> {
+    func updateCompletedWorkouts(uid: String, completedWorkout: CompletedWorkout, totalExercises: Int) -> AnyPublisher<Void, Error> {
         Deferred {
             Future { promise in
-                Firestore.firestore()
+                
+                var newTotal = 0
+                
+                let docRef = Firestore
+                    .firestore()
                     .collection("users").document(uid)
                     .collection("workouts")
-                    .document("day").delete() {error in
-                        if let err = error {
-                            promise(.failure(err))
+                    .document("completed")
+                
+                docRef
+                    .getDocument { snapshot, err in
+                        if let snapshot = snapshot {
+                            guard let data = snapshot.data() else {
+                                print("Document data was empty.")
+                                docRef
+                                    .setData([
+                                        completedWorkout.day: completedWorkout.categoriesCompleted,
+                                        "total": completedWorkout.categoriesCompleted == totalExercises ? newTotal + 1 : newTotal
+                                    ]) { err in
+                                        if let err = err {
+                                            print("Error writing document: \(err)")
+                                            //                                            promise(.failure(err))
+                                        } else {
+                                            print("Document successfully written!")
+                                            //                                            promise(.success(()))
+                                        }
+                                        
+                                    }
+                                return
+                            }
+                            
+                            if let total = data["total"] as? Int {
+                                newTotal = total
+                                if let currentCount = data[completedWorkout.day] as? Int {
+                                    // Don't exceed total exercises
+                                    if (currentCount != totalExercises) {
+                                        let newCount = currentCount + completedWorkout.categoriesCompleted
+                                        docRef
+                                            .updateData([
+                                                completedWorkout.day: newCount,
+                                                "total": newCount == totalExercises ? newTotal + 1 : newTotal
+                                            ]) { err in
+                                                if let err = err {
+                                                    print("Error writing document: \(err)")
+                                                } else {
+                                                    print("Document successfully written!")
+                                                }
+                                                
+                                            }
+                                    }
+                                } else {
+                                    docRef
+                                        .updateData([
+                                            completedWorkout.day: completedWorkout.categoriesCompleted,
+                                            "total": completedWorkout.categoriesCompleted == totalExercises ? newTotal + 1 : newTotal
+                                        ]) { err in
+                                            if let err = err {
+                                                print("Error writing document: \(err)")
+                                            } else {
+                                                print("Document successfully written!")
+                                            }
+                                            
+                                        }
+                                }
+                            }
                         } else {
-                            promise(.success(()))
+                            docRef
+                                .setData([
+                                    completedWorkout.day: completedWorkout.categoriesCompleted,
+                                    "total": completedWorkout.categoriesCompleted == totalExercises ? newTotal + 1 : newTotal
+                                ]) { err in
+                                    if let err = err {
+                                        print("Error writing document: \(err)")
+                                    } else {
+                                        print("Document successfully written!")
+                                    }
+                                    
+                                }
                         }
                     }
             }

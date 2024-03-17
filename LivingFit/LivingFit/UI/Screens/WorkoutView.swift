@@ -84,7 +84,7 @@ struct WorkoutView: View {
         return Split.Interval(rounds: 4, work: 10, rest: 5)
     }
     
-    @ViewBuilder private func MenuView() -> some View {
+    @ViewBuilder private func MenuView(progress: CGFloat) -> some View {
         Menu {
             NavigationLink(destination:  NavigationLazyView(WorkoutEditView(split: split ?? nil, addedExercises: getAddedExercises(), path: $path))) {
                 Image(systemName: "square.and.pencil")
@@ -105,8 +105,14 @@ struct WorkoutView: View {
                 }
             }
         } label: {
-            Image(systemName: "ellipsis")
-                .imageScale(.small)
+            Circle()
+                .fill(-progress > 1 ? Color.gray.opacity(0.2) : Color(uiColor: .black).opacity(0.7))
+                .frame(width: 30, height: 30)
+                .overlay {
+                    Image(systemName: "ellipsis")
+                        .imageScale(.medium)
+                        .foregroundStyle(-progress > 1 ? Color.colorPrimary : Color.white)
+                }
         }
     }
     
@@ -119,23 +125,22 @@ struct WorkoutView: View {
             let titleProgress = minY / height
             
             HStack(spacing: 15){
-                Button {
-                    presentationMode.wrappedValue.dismiss()
-                } label: {
-                    Image(systemName: "chevron.left")
-                        .font(.title3)
-                        .foregroundStyle(-progress > 1 ? .black : .white)
-                }
-                
-                Spacer(minLength: 0)
-                
                 Circle()
-                    .fill(-progress > 1 ? .white : Color.colorPrimary)
-                    .frame(width: 25, height: 25)
+                    .fill(-progress > 1 ? Color.white : Color(uiColor: .black).opacity(0.7))
+                    .frame(width: 30, height: 30)
                     .overlay {
-                        MenuView()
-                            .foregroundStyle(-progress > 1 ? Color.colorPrimary : .white)
+                        Button {
+                            presentationMode.wrappedValue.dismiss()
+                        } label: {
+                            Image(systemName: "chevron.left")
+                                .imageScale(.medium)
+                                .fontWeight(.semibold)
+                                .foregroundStyle(-progress > 1 ? .black : .white)
+                        }
                     }
+                Spacer(minLength: 0)
+                MenuView(progress: progress)
+                
             }
             .overlay(content: {
                 Text(split?.day ?? "")
@@ -148,11 +153,9 @@ struct WorkoutView: View {
             .padding(.top,safeArea.top + 10)
             .padding([.horizontal,.bottom],15)
             .background(content: {
-                withAnimation {
-                    Color.white
-                        .opacity(-progress > 1 ? 1 : 0)
-                }
-                .shadow(radius: 3.0)
+                Color.white
+                    .opacity(-progress > 1 ? 1 : 0)
+                    .shadow(radius: 3.0)
             })
             .offset(y: -minY)
         }
@@ -344,6 +347,7 @@ struct WorkoutView: View {
                 }
             })
             .ignoresSafeArea(.container, edges: .top)
+            .ignoresSafeArea(.keyboard)
         }
     }
 }

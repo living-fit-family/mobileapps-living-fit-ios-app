@@ -16,7 +16,6 @@ struct UserSessionDetails {
     let id: String
     let username: String?
     let photoUrl: String?
-    let completedWorkouts: Int?
 }
 
 enum SessionState {
@@ -103,7 +102,6 @@ private extension SessionServiceImpl {
                 
                 let username = data["username"] as? String
                 let photoUrl = data["photoURL"] as? String
-                let completedWorkouts = data["completedWorkouts"] as? Int
                 
                 let gender = data["gender"] as? String
                 let birthDate = data["birthDate"] as? Timestamp
@@ -119,7 +117,7 @@ private extension SessionServiceImpl {
                 
                 DispatchQueue.main.async {
                     
-                    self.user = UserSessionDetails(id: document.documentID, username: username, photoUrl: photoUrl, completedWorkouts: completedWorkouts)
+                    self.user = UserSessionDetails(id: document.documentID, username: username, photoUrl: photoUrl)
                     self.macros = UserDetail(
                         gender: Gender(rawValue: gender ?? Gender.female.rawValue)!,
                         birthDate: Date(timeIntervalSince1970: Double(formattedDate)),

@@ -30,3 +30,7 @@ class Workout: Codable, Identifiable {
         videos.move(fromOffsets: source, toOffset: destination)
     }
 }
+
+struct Completed: Codable {
+    var total: Int
+}

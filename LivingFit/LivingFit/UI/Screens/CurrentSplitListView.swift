@@ -75,10 +75,7 @@ struct CurrentSplitListView: View {
     }
     
     func getCompletedWorkouts() -> Int {
-//        if let completedWorkouts = sessionService.user?.completedWorkouts {
-//            return completedWorkouts
-//        }
-        return 0
+        return splitSessionService.completedWorkouts
     }
     
     
@@ -135,7 +132,7 @@ struct CurrentSplitListView: View {
                                         .foregroundColor(Color(.systemGray3))
                                         .frame(width: 65, height: 65)
                                     Circle()
-                                        .trim(from: 0.0, to: 0.25)
+                                        .trim(from: 0.0, to: CGFloat(getCompletedWorkouts()) / 20)
                                         .stroke(style: StrokeStyle(lineWidth: 8, lineCap: .round, lineJoin: .round))
                                         .foregroundStyle(Color.colorPrimary)
                                         .rotationEffect(.degrees(270.0))

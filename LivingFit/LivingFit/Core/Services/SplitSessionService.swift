@@ -28,6 +28,7 @@ final class SplitSessionServiceImpl: ObservableObject, SplitSessionService {
     @Published var state: SplitSessionState = .na
     @Published var hasError: Bool = false
     @Published var userWorkOuts: [String: [Workout]] = [:]
+    @Published var completedWorkouts: Int = 0
     
     private var splitSessionRepository: SplitSessionRepository
     private var subscriptions = Set<AnyCancellable>()
@@ -54,8 +55,17 @@ final class SplitSessionServiceImpl: ObservableObject, SplitSessionService {
             }.store(in: &subscriptions)
     }
     
-    func addUserWorkout(user: UserDetail, day: String, categories: [String], workout: [Video], status: [String:Bool] = [:]) {
-        
+    func updateCompletedWorkouts(uid: String, completedWorkout: CompletedWorkout, totalExercises: Int) async {
+        splitSessionRepository.updateCompletedWorkouts(uid: uid, completedWorkout: completedWorkout, totalExercises: totalExercises)
+            .sink { res in
+                switch res {
+                case .failure(let err):
+                    self.state = .failure(err: err)
+                default: break
+                }
+            } receiveValue: { [weak self] in
+                self?.state = .success
+            }.store(in: &subscriptions)
     }
     
     func addUserWorkout(uid: String, day: String, categories: [String], workout: [Video]) async {
@@ -101,6 +111,15 @@ final class SplitSessionServiceImpl: ObservableObject, SplitSessionService {
                         return
                     }
                     querySnapshot.documents.forEach { document in
+                        if document.documentID == "completed" {
+                            guard let self = self,
+                                  let completed: Completed = try? document.data(as: Completed.self) else {
+                                return
+                            }
+                            DispatchQueue.main.async {
+                                self.completedWorkouts = completed.total
+                            }
+                        }
                         guard let self = self,
                               let workouts: WorkoutRoutine = try? document.data(as: WorkoutRoutine.self) else {
                             return

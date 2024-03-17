@@ -32,11 +32,7 @@ struct VideoView: View {
     var body: some View {
         VStack {
             ZStack {
-                
-                VideoPlayer(url: URL(string: video.videoLink)!, play: .constant(true), time: $time)
-                    .contentMode(.scaleAspectFill)
-                    .autoReplay(true)
-                    .mute(true)
+                VideoPlayerView(urls: [URL(string: video.videoLink)!], currentIndex: .constant(0), isPlaying: .constant(true))
                 VStack(alignment: .center) {
                     Spacer()
                     HStack {
@@ -62,12 +58,40 @@ struct VideoView: View {
                 VStack(alignment: .center) {
                     VStack {
                         if video.category == Query.cardio.rawValue {
-                            Text("Duration: \(video.duration ?? "N/A")")
-                            Text("Rest: \(video.rest ?? "N/A")")
+                            HStack {
+                                Spacer()
+                                VStack {
+                                    Text("DURATION")
+                                        .font(.caption2)
+                                        .fontWeight(.semibold)
+                                    Text("\(video.duration ?? "N/A")")
+                                        .font(.largeTitle)
+                                        .fontWeight(.semibold)
+                                }
+                                .frame(minWidth: 0, maxWidth: .infinity)
+                                Spacer()
+                                Divider()
+                                    .frame(height: 50)
+                                Spacer()
+                                VStack {
+                                    Text("REST")
+                                        .font(.caption2)
+                                        .fontWeight(.semibold)
+                                    Text("\(video.rest ?? "N/A") sec")
+                                        .font(.largeTitle)
+                                        .fontWeight(.semibold)
+                                }
+                                .frame(minWidth: 0, maxWidth: .infinity)
+                                Spacer()
+                            }
+                            .padding(.vertical)
                         } else if video.category == Query.hiit.rawValue {
-                            Text("Included in HIIT Interval")
-                            Text("")
-                            Text("")
+                            VStack(alignment: .center) {
+                                Text("Included in HIIT Interval")
+                                    .font(.title)
+                                    .fontWeight(.semibold)
+                                    .padding()
+                            }
                         } else {
                             HStack {
                                 Spacer()
@@ -79,6 +103,7 @@ struct VideoView: View {
                                         .font(.largeTitle)
                                         .fontWeight(.semibold)
                                 }
+                                .frame(minWidth: 0, maxWidth: .infinity)
                                 Spacer()
                                 Divider()
                                     .frame(height: 50)
@@ -92,6 +117,7 @@ struct VideoView: View {
                                         .fontWeight(.semibold)
                                     
                                 }
+                                .frame(minWidth: 0, maxWidth: .infinity)
                                 Spacer()
                                 Divider()
                                     .frame(height: 50)
@@ -105,14 +131,13 @@ struct VideoView: View {
                                         .fontWeight(.semibold)
                                     
                                 }
+                                .frame(minWidth: 0, maxWidth: .infinity)
                                 Spacer()
                             }.padding(.vertical)
                         }
                     }
                 }
-                Spacer()
             }
-            .padding(.horizontal)
             if (showButton) {
                 if (isAdded()) {
                     ButtonView(title: "Remove Exercise", background: .red) {
