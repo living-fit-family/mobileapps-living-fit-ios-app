@@ -6,9 +6,6 @@
 //
 
 import SwiftUI
-import FirebaseFunctions
-import SendbirdChatSDK
-
 
 struct ViewCoordinator: View {
     @EnvironmentObject  var sessionService: SessionServiceImpl
@@ -20,18 +17,18 @@ struct ViewCoordinator: View {
     @ViewBuilder
     func viewBuilder() -> some View {
         if let channelId = sessionService.channelId {
-            ChannelViewContainer(channelId: channelId)
-                .onDisappear {
-                    DispatchQueue.main.async {
-                        sessionService.channelId = nil
-                    }
-                }
+//            ChannelViewContainer(channelId: channelId)
+//                .onDisappear {
+//                    DispatchQueue.main.async {
+//                        sessionService.channelId = nil
+//                    }
+//                }
         } else {
             MainView()
                 .onAppear {
                     DispatchQueue.main.async {
                         sessionService.channelId = nil
-                        sessionService.updateUnreadChannelCount()
+//                        sessionService.updateUnreadChannelCount()
                     }
                 }
         }

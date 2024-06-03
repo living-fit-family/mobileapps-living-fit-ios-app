@@ -28,17 +28,16 @@ struct ExerciseView: View {
     @State private var timer: Timer?
     @State private var timeRemaining: Double = 5
     @State private var totalTime: Double = 5
-    @State private var totalElapsedSeconds: Double = 0
     @State private var isTimerRunning = false
     @State private var isWorkoutPaused = false
+    @Binding var totalElapsedSeconds: Double
     
-    @State private var currentItem = 0
     @State private var currentSet = 0
+    @Binding var currentItem: Int
     
     @State private var isHIITInterval = false
     
     @State private var showSheet = false
-    @State private var showComplete = false
     
     @State private var play = true
     @State private var timerText = ""
@@ -48,12 +47,12 @@ struct ExerciseView: View {
     
     @State private var showingUnitOfMeasureForm = false
     @State private var weight = "0"
-    
-    @Binding var path: NavigationPath
-    
+        
     var videos: [Video]
     var day: String
     var queries: [String]
+    
+    var complete: (_ time: Double) -> ()
     
     private func getWorkouts() -> [Workout] {
         guard let workouts = splitSessionService.userWorkOuts[day] else { return [] }
@@ -78,7 +77,6 @@ struct ExerciseView: View {
                         isTimerRunning = false
                         isResting = false
                         updateSets()
-                        
                     }
                 }
             }
@@ -301,7 +299,7 @@ struct ExerciseView: View {
                         .onTapGesture {
                             vibrate()
                             if (!isTimerRunning && isWorkoutPaused) {
-                                path.removeLast(path.count)
+//                                path.removeLast(path.count)
                             } else if (!isTimerRunning && timerText != "FINISH") {
                                 isResting = true
                                 isTimerRunning = true
@@ -312,8 +310,9 @@ struct ExerciseView: View {
                                 updateSets()
                                 resetTimer()
                             } else {
-                                stopTimer() // Workout Finished
-                                showComplete.toggle()
+                                // Workout Finished
+                                stopTimer()
+                                complete(totalElapsedSeconds)
                             }
                         }
                 }
@@ -354,24 +353,6 @@ struct ExerciseView: View {
             }
         }
         .ignoresSafeArea(.keyboard)
-        .fullScreenCover(isPresented: $showComplete) {
-            WorkoutCompleteView(completionTime: totalElapsedSeconds) {
-                if let user = sessionService.user, let segments = splitSessionService.split?.segments {
-                    if let segment = segments.first(where: { $0.day == day}) {
-                        let totalExercises = segment.exercises.reduce(0) { (result, currentStruct) -> Int in
-                            return result + currentStruct.number
-                        }
-                        
-                        let completedWorkout = CompletedWorkout(day: day, categoriesCompleted: videos.count)
-                        
-                        Task {
-                            await splitSessionService.updateCompletedWorkouts(uid: user.id, completedWorkout: completedWorkout, totalExercises: totalExercises)
-                        }
-                    }
-                }
-                path.removeLast(path.count)
-            }
-        }
         .popup(isPresented: $showingUnitOfMeasureForm) {
             UnitOfMeasureForm(feet: .constant(""), inches: .constant(""), weight: $weight, showingUnitOfMeasureForm: $showingUnitOfMeasureForm, measurement: .weight) {
                 let index = getAddedExercises().firstIndex(where: { $0.name == videoName })
@@ -404,9 +385,13 @@ struct ExerciseView: View {
             if let currentSet = viewModel.videos[currentItem].currentSet {
                 self.currentSet = currentSet
             }
+            stopTimer()
             resetTimer()
             startTimer()
             getTimerText()
+        }
+        .onDisappear {
+            stopTimer()
         }
         .onChange(of: currentItem, perform: { value in
             if let currentSet = viewModel.videos[value].currentSet {
@@ -423,7 +408,9 @@ struct ExerciseView: View {
 struct ExerciseView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
-            ExerciseView(path: .constant(NavigationPath()), videos: [Video.sampleVideo, Video.sampleVideo2], day: "Monday", queries: [""])
+            ExerciseView(totalElapsedSeconds: .constant(Double(0)), currentItem: .constant(0), videos: [Video.sampleVideo, Video.sampleVideo2], day: "Monday", queries: [""]) { time in
+                
+            }
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE (3rd generation)"))
         }
     }

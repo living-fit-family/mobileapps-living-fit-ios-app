@@ -86,9 +86,7 @@ struct TabataExerciseView: View {
     @State private var showSheet = false
     
     @State private var isPlaying = false
-    
-    @State private var showComplete = false
-    
+        
     @State private var progress = 1.0
     @State private var totalProgress = 1.0
     
@@ -107,6 +105,8 @@ struct TabataExerciseView: View {
     var interval: Split.Interval = Split.Interval(rounds: 4, work: 10, rest: 5)
     
     @Binding var path: NavigationPath
+    
+    var complete: () -> ()
     
     func updateUI() {
         // Update UI elements here
@@ -135,9 +135,9 @@ struct TabataExerciseView: View {
                 switchInterval()
             }
             
-            if (elapsedTotalTime == 0) {
+            if (elapsedTotalTime <= 0) {
                 stopTimer()
-                showComplete.toggle()
+                complete()
             }
         }
     }
@@ -357,24 +357,6 @@ struct TabataExerciseView: View {
             .padding(.horizontal)
             .frame(maxHeight: 50)
         }
-        .fullScreenCover(isPresented: $showComplete) {
-            WorkoutCompleteView() {
-                if let user = sessionService.user, let segments = splitSessionService.split?.segments {
-                    if let segment = segments.first(where: { $0.day == day}) {
-                        let totalExercises = segment.exercises.reduce(0) { (result, currentStruct) -> Int in
-                            return result + currentStruct.number
-                        }
-                        
-                        let completedWorkout = CompletedWorkout(day: day, categoriesCompleted: videos.count)
-                        
-                        Task {
-                            await splitSessionService.updateCompletedWorkouts(uid: user.id, completedWorkout: completedWorkout, totalExercises: totalExercises)
-                        }
-                    }
-                }
-                path.removeLast(path.count)
-            }
-        }
         .onAppear {
             isFirstLoad = true
         }
@@ -386,7 +368,9 @@ struct TabataExerciseView: View {
 struct TabataExerciseView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
-            TabataExerciseView(videos: [Video.sampleVideo, Video.sampleVideo2], day: "Monday", queries: [""], interval: Split.Interval(rounds: 4, work: 10, rest: 5), path: .constant(NavigationPath()))
+            TabataExerciseView(videos: [Video.sampleVideo, Video.sampleVideo2], day: "Monday", queries: [""], interval: Split.Interval(rounds: 4, work: 10, rest: 5), path: .constant(NavigationPath())) {
+                
+            }
                 .previewDevice(PreviewDevice(rawValue: "iPhone SE (3rd generation)"))
         }
     }

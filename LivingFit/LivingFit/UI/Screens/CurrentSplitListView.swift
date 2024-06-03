@@ -7,9 +7,8 @@
 
 import SwiftUI
 import Kingfisher
-import PopupView
-import SendbirdUIKit
-import SendbirdChatSDK
+import StreamChat
+import StreamChatSwiftUI
 
 enum Destination {
     case workout
@@ -22,10 +21,9 @@ struct CurrentSplitListView: View {
     @Environment(\.presentationMode) private var presentationMode
     
     @State private var unreadChannelCount = 0
-    @State private var isShowingChannelList = false
     
     @State private var path = NavigationPath()
-
+    
     var date: Text {
         return Text(Date(), style: .date)
     }
@@ -98,16 +96,19 @@ struct CurrentSplitListView: View {
                         
                     }
                     Spacer()
-                    Image(systemName: "message")
-                        .imageScale(.large  )
-                        .fontWeight(.bold)
-                        .foregroundStyle(.black)
-                        .overlay {
-                            NotificationCountView(value: $unreadChannelCount)
-                        }
-                        .onTapGesture {
-                            isShowingChannelList = true
-                        }
+                    NavigationLink {
+                        AnyView(NavigationLazyView(ChatChannelListView(viewFactory: CustomViewFactory.shared, title: "Channels", embedInNavigationView: false)))
+                    } label: {
+                        // existing contents…
+                        Image(systemName: "text.bubble")
+                            .imageScale(.large)
+                            .fontWeight(.medium)
+                            .foregroundStyle(.black)
+                            .overlay {
+                                NotificationCountView(value: $unreadChannelCount)
+                            }
+                            .padding(.bottom)
+                    }
                 }
                 .padding([.horizontal, .bottom])
                 RoundedRectangle(cornerRadius: 20)
@@ -201,14 +202,6 @@ struct CurrentSplitListView: View {
                     AnyView(NavigationLazyView(WorkoutEditView(split: segment, path: $path).toolbar(.hidden, for: .tabBar)))
                 }
             }
-        }
-        .popup(isPresented: $isShowingChannelList) {
-            ChannelListViewContainer()
-                .onAppear {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        isShowingChannelList = false
-                    }
-                }
         }
         .tabItem {
             Label("Home", systemImage: "house.fill")

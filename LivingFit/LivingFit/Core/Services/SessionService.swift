@@ -9,8 +9,6 @@ import Foundation
 import FirebaseAuth
 import FirebaseFunctions
 import FirebaseFirestore
-import SendbirdUIKit
-import SendbirdChatSDK
 
 struct UserSessionDetails {
     let id: String
@@ -39,14 +37,14 @@ final class SessionServiceImpl: ObservableObject, SessionService {
     @Published var channelId: String? = nil
     @Published var unreadChannelCount = 0
     private var pushNotifications = PushNotifications()
-
+    
     
     private var handler: AuthStateDidChangeListenerHandle?
     
     init() {
         pushNotifications = PushNotifications()
         setupFirebaseAuthHandler()
-        handlePushNotificationResponse()
+//        handlePushNotificationResponse()
     }
     
     func signOut() {
@@ -148,54 +146,39 @@ private extension SessionServiceImpl {
                     }
                     
                     self.state = .loggedIn
-                    
-                    // Set the current user
-                    SBUGlobals.currentUser = SBUUser(userId: uid, nickname: username, profileURL: photoUrl)
-                    
-//                    let params = UserUpdateParams()
-//                    params.nickname = username
-//                    params.profileImageURL = photoUrl
-//                    SendbirdChat.updateCurrentUserInfo(params: params, progressHandler: nil) { error in
-//                        guard error == nil else {
-//                            // Handle error.
-//                            return
-//                        }
-//                        // The current user's profile is successfully updated.
-//                        // You could redraw the profile in a view in response to this operation.
-//                    }
                 }
             }
     }
 }
 
-extension SessionServiceImpl {
-    func handlePushNotificationResponse() {
-            pushNotifications.listenToNotificationsResponse { [weak self] response in
-                guard case UNNotificationDefaultActionIdentifier = response.actionIdentifier else {
-                    return
-                }
-//                let action = response.actionIdentifier
-                let request = response.notification.request
-                let userInfo = request.content.userInfo
-//                let alertMsg = (userInfo["aps"] as! NSDictionary)["alert"] as! NSDictionary
-                let payload = userInfo["sendbird"] as! NSDictionary
-                let channel = payload["channel"] as! NSDictionary
-                let channelUrl = channel["channel_url"] as! String
-                
-                self?.channelId = channelUrl
-                
-                let params = GroupChannelTotalUnreadMessageCountParams();
-                params.superChannelFilter = .all
-            }
-        }
-    
-    public func updateUnreadChannelCount() {
-        SendbirdChat.getTotalUnreadChannelCount { count, error in
-            guard error == nil else {
-                return // Handle error.
-            }
-            self.unreadChannelCount = Int(count)
-            UIApplication.shared.applicationIconBadgeNumber = Int(count)
-        }
-    }
-}
+//extension SessionServiceImpl {
+//    func handlePushNotificationResponse() {
+//            pushNotifications.listenToNotificationsResponse { [weak self] response in
+//                guard case UNNotificationDefaultActionIdentifier = response.actionIdentifier else {
+//                    return
+//                }
+////                let action = response.actionIdentifier
+//                let request = response.notification.request
+//                let userInfo = request.content.userInfo
+////                let alertMsg = (userInfo["aps"] as! NSDictionary)["alert"] as! NSDictionary
+//                let payload = userInfo["sendbird"] as! NSDictionary
+//                let channel = payload["channel"] as! NSDictionary
+//                let channelUrl = channel["channel_url"] as! String
+//
+//                self?.channelId = channelUrl
+//
+//                let params = GroupChannelTotalUnreadMessageCountParams();
+//                params.superChannelFilter = .all
+//            }
+//        }
+//
+//    public func updateUnreadChannelCount() {
+//        SendbirdChat.getTotalUnreadChannelCount { count, error in
+//            guard error == nil else {
+//                return // Handle error.
+//            }
+//            self.unreadChannelCount = Int(count)
+//            UIApplication.shared.applicationIconBadgeNumber = Int(count)
+//        }
+//    }
+//}

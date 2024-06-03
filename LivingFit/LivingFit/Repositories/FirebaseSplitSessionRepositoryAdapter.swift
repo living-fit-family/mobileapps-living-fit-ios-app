@@ -77,7 +77,7 @@ final class FirebaseSplitSessionRespositoryAdapter: SplitSessionRepository {
         .eraseToAnyPublisher()
     }
     
-    func updateCompletedWorkouts(uid: String, completedWorkout: CompletedWorkout, totalExercises: Int) -> AnyPublisher<Void, Error> {
+    func updateCompletedWorkouts(uid: String, completedWorkout: CompletedWorkout) -> AnyPublisher<Void, Error> {
         Deferred {
             Future { promise in
                 
@@ -96,8 +96,8 @@ final class FirebaseSplitSessionRespositoryAdapter: SplitSessionRepository {
                                 print("Document data was empty.")
                                 docRef
                                     .setData([
-                                        completedWorkout.day: completedWorkout.categoriesCompleted,
-                                        "total": completedWorkout.categoriesCompleted == totalExercises ? newTotal + 1 : newTotal
+                                        completedWorkout.day: completedWorkout.completed,
+                                        "total": completedWorkout.completed == true ? newTotal + 1 : newTotal
                                     ]) { err in
                                         if let err = err {
                                             print("Error writing document: \(err)")
@@ -113,14 +113,13 @@ final class FirebaseSplitSessionRespositoryAdapter: SplitSessionRepository {
                             
                             if let total = data["total"] as? Int {
                                 newTotal = total
-                                if let currentCount = data[completedWorkout.day] as? Int {
+                                if let completed = data[completedWorkout.day] as? Bool {
                                     // Don't exceed total exercises
-                                    if (currentCount != totalExercises) {
-                                        let newCount = currentCount + completedWorkout.categoriesCompleted
+                                    if (completed == false) {
                                         docRef
                                             .updateData([
-                                                completedWorkout.day: newCount,
-                                                "total": newCount == totalExercises ? newTotal + 1 : newTotal
+                                                completedWorkout.day: completedWorkout.completed,
+                                                "total": newTotal + 1
                                             ]) { err in
                                                 if let err = err {
                                                     print("Error writing document: \(err)")
@@ -133,8 +132,8 @@ final class FirebaseSplitSessionRespositoryAdapter: SplitSessionRepository {
                                 } else {
                                     docRef
                                         .updateData([
-                                            completedWorkout.day: completedWorkout.categoriesCompleted,
-                                            "total": completedWorkout.categoriesCompleted == totalExercises ? newTotal + 1 : newTotal
+                                            completedWorkout.day: completedWorkout.completed,
+                                            "total": completedWorkout.completed == true ? newTotal + 1 : newTotal
                                         ]) { err in
                                             if let err = err {
                                                 print("Error writing document: \(err)")
@@ -148,8 +147,8 @@ final class FirebaseSplitSessionRespositoryAdapter: SplitSessionRepository {
                         } else {
                             docRef
                                 .setData([
-                                    completedWorkout.day: completedWorkout.categoriesCompleted,
-                                    "total": completedWorkout.categoriesCompleted == totalExercises ? newTotal + 1 : newTotal
+                                    completedWorkout.day: completedWorkout.completed,
+                                    "total": completedWorkout.completed == true ? newTotal + 1 : newTotal
                                 ]) { err in
                                     if let err = err {
                                         print("Error writing document: \(err)")

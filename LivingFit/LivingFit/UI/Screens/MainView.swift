@@ -6,9 +6,6 @@
 //
 
 import SwiftUI
-import SendbirdUIKit
-import SendbirdChatSDK
-
 
 struct MainView: View {    
     @EnvironmentObject var sessionService: SessionServiceImpl

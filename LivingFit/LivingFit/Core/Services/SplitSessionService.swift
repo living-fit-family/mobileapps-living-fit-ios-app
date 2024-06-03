@@ -55,8 +55,8 @@ final class SplitSessionServiceImpl: ObservableObject, SplitSessionService {
             }.store(in: &subscriptions)
     }
     
-    func updateCompletedWorkouts(uid: String, completedWorkout: CompletedWorkout, totalExercises: Int) async {
-        splitSessionRepository.updateCompletedWorkouts(uid: uid, completedWorkout: completedWorkout, totalExercises: totalExercises)
+    func updateCompletedWorkouts(uid: String, completedWorkout: CompletedWorkout) async {
+        splitSessionRepository.updateCompletedWorkouts(uid: uid, completedWorkout: completedWorkout)
             .sink { res in
                 switch res {
                 case .failure(let err):

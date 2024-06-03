@@ -75,14 +75,14 @@ struct WorkoutView: View {
         return isHitt
     }
     
-    private func getSplitInterval() -> Split.Interval {
-        if let split = split {
-            if let exercise = split.exercises.first(where: { $0.interval != nil }) {
-                return exercise.interval!
-            }
-        }
-        return Split.Interval(rounds: 4, work: 10, rest: 5)
-    }
+//    private func getSplitInterval() -> Split.Interval {
+//        if let split = split {
+//            if let exercise = split.exercises.first(where: { $0.interval != nil }) {
+//                return exercise.interval!
+//            }
+//        }
+//        return Split.Interval(rounds: 4, work: 10, rest: 5)
+//    }
     
     @ViewBuilder private func MenuView(progress: CGFloat) -> some View {
         Menu {
@@ -266,33 +266,35 @@ struct WorkoutView: View {
                 }
                 VStack {
                     Spacer()
-                    if isHIIT() {
-                        StartWorkoutButton()
-                            .onTapGesture {
-                                showSelection.toggle()
-                            }
-                    } else {
+//                    if isHIIT() {
+//                        StartWorkoutButton()
+//                            .onTapGesture {
+//                                showSelection.toggle()
+//                            }
+//                    } else {
                         NavigationLink(value: WorkoutType.regular) {
                             StartWorkoutButton()
                         }
-                    }
+//                    }
                 }
                 .navigationDestination(for: WorkoutType.self) { type in
-                    switch type {
-                    case .regular:
-                        AnyView(NavigationLazyView(ExerciseView(path: $path, videos: getAddedExercises(), day: split?.day ?? "", queries: queries)
+//                    switch type {
+//                    case .regular:
+                    AnyView(NavigationLazyView(ExerciseViewCoordinator(path: $path, split: split, videos: getAddedExercises(), day: split?.day ?? "", queries: queries)
                             .toolbar(.hidden, for: .navigationBar)))
-                    case .hiit:
-                        AnyView(NavigationLazyView(
-                            TabataExerciseView(videos: getAddedExercises().filter { $0.category == "hiit"},
-                                               day: split?.day ?? "",
-                                               queries: queries,
-                                               interval: getSplitInterval(),
-                                               path: $path)                                            .toolbar(.hidden, for: .navigationBar)))
-                    case .abs:
-                        AnyView(NavigationLazyView(ExerciseView(path: $path, videos: getAddedExercises().filter { $0.category != "hiit"}, day: split?.day ?? "", queries: queries)
-                            .toolbar(.hidden, for: .navigationBar)))
-                    }
+//                        AnyView(NavigationLazyView(ExerciseView(path: $path, videos: getAddedExercises(), day: split?.day ?? "", queries: queries)
+//                            .toolbar(.hidden, for: .navigationBar)))
+//                    case .hiit:
+//                        AnyView(NavigationLazyView(
+//                            TabataExerciseView(videos: getAddedExercises().filter { $0.category == "hiit"},
+//                                               day: split?.day ?? "",
+//                                               queries: queries,
+//                                               interval: getSplitInterval(),
+//                                               path: $path)                                            .toolbar(.hidden, for: .navigationBar)))
+//                    case .abs:
+//                        AnyView(NavigationLazyView(ExerciseView(videos: getAddedExercises().filter { $0.category != "hiit"}, day: split?.day ?? "", queries: queries)
+//                            .toolbar(.hidden, for: .navigationBar)))
+//                    }
                     
                 }
                 .padding(.horizontal)
